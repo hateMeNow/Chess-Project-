@@ -1,0 +1,5 @@
+package ExceptionPartita;
+
+public class ScaccoMattoException extends Exception {
+
+}
