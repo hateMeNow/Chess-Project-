@@ -1,0 +1,213 @@
+package Pezzi;
+import ExceptionMosse.*;
+import Posizione.*;
+import Utility.MaiusOMinuscola;
+import ExceptionPezzi.AlfiereException;
+import ExceptionPezzi.DonnaException;
+import ExceptionPezzi.TorreException;
+
+/**
+ * Classe Donna;
+ * Movimento: Torre,Alfiere
+ * Exception: Si arresta quando un elemento ne ostacola il movimento
+ * @author manuel
+ *
+ */
+
+public class Donna implements Pezzo {
+
+	/**
+	 * Variabile per definire il colore del pezzo;
+	 */
+	private char colore;
+	/**
+	 * Costruttore per Donna;
+	 * 
+	 * @param colore
+	 */
+	public Donna(char colore)
+	{
+		this.colore=colore;
+	}
+	/**
+	 * Metodo che ritorna il colore del pezzo; 
+	 * @retur char
+	 */
+	public char getColore()
+	{
+		return colore;
+	}
+	/**
+	 * Metodo puoiMuovere;
+	 * Metodo che verifica il movimento della donna
+	 * Verranno utilizzati metodi della classe Torre e Alfiere
+	 * @param Casella da, Casella a, Posizione b
+	 * @return boolean
+	 * @throws CasellaOccupataException,MossaIllegaleException
+	 * 
+	 */
+	public boolean puoiMuovere(Casella da, Casella a,Posizione b) throws MossaIllegaleException,CasellaOccupataException,DonnaException,AlfiereException,TorreException
+	{
+		/*Verifichiamo il tipo di movimento*/
+		Pezzo pez;
+		Pezzo pez1;
+		Casella cDa=new Casella();
+		Casella cA=new Casella();
+		cDa.setRiga(da.getRiga());
+		cA.setRiga(a.getRiga());
+		cDa.setColonna(da.getColonna());
+		cA.setColonna(a.getColonna());
+		if((da.getRiga()==a.getRiga()))
+		{
+			/*Movimento Orizzontale*/
+			try
+			{
+				if(Torre.searchPezziOriz(cDa, cA, b))
+						return true;
+			}catch(TorreException e)
+			{
+				/*Casella Occupata*/
+				throw new CasellaOccupataException();
+			} 
+			catch (MossaIllegaleException e) 
+			{
+				/*Mossa Illegale*/
+				throw new MossaIllegaleException();
+			}
+			catch(CasellaOccupataException e)
+			{
+				/*CasellaOccupata*/
+				throw new CasellaOccupataException();
+			}
+			
+		}
+		if(da.getColonna()==a.getColonna())
+		{
+				/*Movimento Verticale*/
+			try
+			{
+				if(Torre.searchPezziVert(cDa,cA, b))
+					return true;
+			}
+			catch(TorreException e)
+			{
+				/*Casella Occupata */
+				throw new CasellaOccupataException();
+			}
+			catch(CasellaOccupataException e)
+			{
+				/*Casella occupata*/
+				throw new CasellaOccupataException();
+			}
+			catch(MossaIllegaleException e)
+			{
+				/*Mossa Illegale Exception*/
+				throw new MossaIllegaleException();
+			}
+		}
+		/*Verifico il movimento dell'alfiere*/
+		cDa.setRiga(da.getRiga());
+		cA.setRiga(a.getRiga());
+		cDa.setColonna(da.getColonna());
+		cA.setColonna(a.getColonna());
+		if((Math.abs(da.getRiga() - a.getRiga()))==(Math.abs(da.getColonna()-a.getColonna())))
+		{
+			pez=b.getPezzo(a);
+			if(pez==null)
+			{
+				/* La casella di arrivo è vuota,verifico se presenti pezzi*/
+				try
+				{
+					if(Alfiere.searchPezzi(cDa, cA, b))
+						return true;
+				}catch(CasellaOccupataException e)
+				{
+					throw new CasellaOccupataException();
+				}
+				
+			}else{
+				/*Verifico il colore */
+				pez1=b.getPezzo(da);
+				if((pez1.getColore()=='D'))
+				{
+					/* Bianco*/
+					if(MaiusOMinuscola.Maius(pez.getColore()))
+					{
+							throw new AlfiereException();
+					}else
+					{
+						try
+						{
+							if(Alfiere.searchPezzi(cDa, cA, b))
+								return true;
+						}catch(CasellaOccupataException e)
+						{
+							throw new CasellaOccupataException();
+						}
+					}
+					
+				}else{
+					/*Alfiere Nero*/
+					if(MaiusOMinuscola.Maius(pez.getColore()))
+					{
+						try
+						{
+							if(Alfiere.searchPezzi(cDa, cA, b))
+								return true;
+						}catch(CasellaOccupataException e)
+						{
+							throw new CasellaOccupataException();
+						}
+					}else{
+						throw new AlfiereException();
+					}
+				}
+			}
+		}else{
+			throw new MossaIllegaleException();
+		}	
+		/*Movimento Errato*/
+		throw new DonnaException();	
+	}
+	/**
+	 * Metodo getMosse;
+	 * Dato che il movimento della donna coincide sia con il movimento della torre e alfiere.
+	 * Basta richiamare i metodi delle singole classi. 
+	 * 
+	 * @param char colore, Casella da, Posizione b
+	 * @return arr
+	 * @author manuel
+	 */
+	public String getMosse(char colore,Casella da, Posizione b)
+	{
+		String arr="";
+		arr=arr+Torre.getMosseT(colore, da, b) + Alfiere.getMosseA(colore, da, b);
+		return arr;
+	}
+	/**
+	 * Metodo puoiMangiare;
+	 * Dato che il movimento della donna consiste sia in torre che alfiere.
+	 * Si richiama esplicitamente i metodi statici di entrambi le classi
+	 * 
+	 * @param Casella da, Casella a,char color, Posizione b
+	 * @return boolean
+	 * @author manuel
+	 */
+	public boolean puoiMangiare(Casella da,Casella a,char colore,Posizione b )
+	{					
+		Casella cDa=new Casella();
+		Casella cA=new Casella();
+		cDa.setRiga(da.getRiga());
+		cA.setRiga(a.getRiga());
+		cDa.setColonna(da.getColonna());
+		cA.setColonna(a.getColonna());
+		if(Alfiere.puoiMangiareA(cDa, cA, b))
+		{
+			return true;
+		}else{
+			if(Torre.puoiMangiareT(cDa, cA, b))
+				return true;
+			return false;
+		}
+	}
+}
