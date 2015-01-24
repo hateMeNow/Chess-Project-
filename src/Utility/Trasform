@@ -1,0 +1,78 @@
+package Utility;
+
+public class Trasform {
+	
+	/**
+	 * Metodo getCharacter;
+	 * Il seguente metodo trasforma un numero in carattere.
+	 * Utile per la trasformazione di una colonna(int) a carattere(char)
+	 * 
+	 * @param int i 
+	 * @return char
+	 * @author manuel
+	 */
+	public static int getInteger(char c)
+	{
+		switch(c)
+		{
+			case 'a':
+			case 'A':
+				return 0;
+			case 'b':
+			case 'B':
+				return 1;
+			case 'c':
+			case 'C':
+				return 2;
+			case 'd':
+			case 'D':
+				return 3;
+			case 'e':
+			case 'E':
+				return 4;
+			case 'f':
+			case 'F':
+				return 5;
+			case 'g':
+			case 'G':
+				return 6;
+			case 'h':
+			case 'H':
+				return 7;
+		}
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * Metodo getInteger;
+	 * Il seguente metodo trasforma un carattere in un integer.
+	 * Utile per la trasformazione di una colonna(int) a carattere(char)
+	 * 
+	 * @param int i 
+	 * @return char
+	 * @author manuel
+	 */
+	public static char getCharacter(int c)
+	{
+		switch(c)
+		{
+			case 0:
+				return 'a';
+			case 1:
+				return 'b';
+			case 2:
+				return 'c';
+			case 3:
+				return 'd';
+			case 4:
+				return 'e';
+			case 5:
+				return 'f';
+			case 6:
+				return 'g';
+			case 7:
+				return 'h';
+		}
+		throw new IllegalArgumentException();
+	}
+}
