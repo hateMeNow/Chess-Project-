@@ -1,0 +1,5 @@
+package ExceptionPartita;
+
+public class ImpossibileRitirareException extends Exception {
+
+}
