@@ -1,0 +1,433 @@
+package ScacchiGioco;
+import ExceptionMosse.*;
+import ExceptionPartita.*;
+import ExceptionPezzi.*;
+import ExceptionUtility.*;
+import Pezzi.*;
+import Posizione.*;
+import Scacchi.*;
+import Utility.*;
+import java.io.*;
+import java.util.*;
+
+public class GiocoScacchi {
+
+
+	
+	public static void main(String[] args) throws FileNotFoundException, ImpossibileRitirareException, CasellaVuotaException, TurnoErratoException, ReSottoScaccoException, ScaccoMattoException, MossaIllegaleException, PattaException, PedoneException, TorreException, AlfiereException, DonnaException, ScaccoPerpetuoException, PedoneNonMangiaException
+	{
+		Scanner io=new Scanner(System.in);
+		Grafica grf=new Grafica();
+		SalvaOCarica soc=new SalvaOCarica();
+		PartitaDiScacchi pds;
+		boolean abb=false;
+		boolean scacco=false;
+		boolean finita=false;
+		String path;
+		String[] Partita;
+		String scelta="";
+		grf.mostraMenu();
+		System.out.println("Inserire scelta: ");
+		scelta=io.next();
+		while(scelta.charAt(0) != '4' && scelta.charAt(0) != 'D' && scelta.charAt(0) != 'd' )
+		{
+			
+			switch (scelta.charAt(0))
+			{
+				case '1':
+				case 'a':
+				case 'A':
+					System.out.println("Caricamento nuova partita");
+					break;
+				case '2':
+				case 'b':
+				case 'B':
+					System.out.println("Carica partita");
+					break;
+				case '3':
+				case 'c':
+				case 'C':
+					grf.regoleScacchi();
+					System.out.println("Inserire scelta: ");
+					scelta=io.next();
+					break;
+				case '4':
+				case 'd':
+				case 'D':
+					System.out.printf("Si è scelto di uscire, arrivederci");
+					break;
+				default :
+					System.out.println("Scelta non valida");
+					System.out.println("Inserire scelta: ");
+					scelta=io.next();
+					break;
+			}
+			
+			if(scelta.charAt(0)=='1' || scelta.charAt(0)=='A' || scelta.charAt(0)=='a')
+			{
+				System.out.println("Inizio nuova partita");
+				pds=new PartitaDiScacchi();
+				String sceltaMenu="";
+				String mossa;
+				try {
+					while(abb==false && scacco==false && pds.getCount()==true && pds.getPatta()==true && finita==false )
+					{
+						grf.mostraMenuPartita();
+						grf.stampaScacchiera(pds.toString(pds.getPosizione()));
+						grf.stampaMosseBianche(pds.getMosseBianche());
+						grf.stampaMosseNere(pds.getMosseNere());
+						System.out.println("Scelta del menu':");
+						sceltaMenu=io.next();
+						Casella a;
+						Casella da;
+						switch(sceltaMenu.charAt(0))
+						{
+						case '1':
+						case 'a':
+						case 'A':
+								char Promozione='c';
+								boolean Semplice=true;
+								grf.stampaScacchiera(pds.toString(pds.getPosizione()));
+								System.out.println("");
+								grf.stampaTurnoMosse(pds.getTurno(), pds.getCountInt());
+								System.out.println("");
+								System.out.println("Inserire mossa da eseguire:");
+								mossa=io.next();
+								if(mossa.length()>6)
+								{
+									da=estraiCaselle.estraiCasella(mossa,1);
+									a=estraiCaselle.estraiCasella(mossa,2);
+									Promozione=mossa.charAt(6);
+									Semplice=false;
+								}else{
+									da=estraiCaselle.estraiCasella(mossa,1);
+									a=estraiCaselle.estraiCasella(mossa,2);
+								}
+								try
+								{
+									if(Semplice)
+									{
+										pds.muovi(da, a);
+									}else{
+										PartitaDiScacchi.setPromozione(da, a, pds.getPosizione(), Promozione);
+										Semplice=true;
+									}
+								}
+								catch(CasellaOccupataException e)
+								{
+									System.out.println("Casella Occupata");
+									break;
+								}
+								catch(ScaccoMattoException e)
+								{
+									System.out.println("Scacco Matto");
+									finita=true;
+									break;
+								}
+								catch(CasellaVuotaException e)
+								{
+									System.out.println("Casella Vuota");
+									break;
+								}
+								catch(TurnoErratoException e)
+								{
+									System.out.println("Turno errato. ");
+									break;
+								}
+								catch(MossaIllegaleException e)
+								{
+									System.out.println("Mossa Illegale. ");
+									break;
+								}
+								catch(PattaException e)
+								{
+									System.out.println("Partita patta");
+									finita=true;
+									break;
+								}
+								catch(ReSottoScaccoException e)
+								{
+									System.out.println("Re Sotto Scacco!");
+									break;
+								}
+								catch(IllegalArgumentException e)
+								{
+									System.out.println("Dati non validi");
+									break;
+								}
+								catch(AlfiereException e)
+								{
+									System.out.println("Errore Mossa ");
+									break;
+								}
+								catch(DonnaException e)
+								{
+									System.out.println("Errore Mossa ");
+									break;
+								}
+								catch(PedoneException e)
+								{
+									System.out.println("Errore Mossa ");
+									break;
+								}
+								catch(TorreException e)
+								{
+									System.out.println("Errore Mossa ");
+									break;
+								}
+								catch(NullPointerException e)
+								{
+										System.out.println("Casella non valida");
+										break;
+								}
+								catch(StringIndexOutOfBoundsException e)
+								{
+									System.out.println("Mossa non completa");
+									break;
+								}
+								break;
+						case '2':
+						case 'b':
+						case 'B':
+								grf.stampaScacchiera(pds.toString(pds.getPosizione()));
+								try
+								{
+									pds.ritira();
+									System.out.println("Ritiro effettuato");
+									grf.stampaScacchiera(pds.toString(pds.getPosizione()));
+									break;
+								}
+								catch(ImpossibileRitirareException e)
+								{
+									System.out.println("Impossibile ritirare");
+									break;
+								}
+						case '3':
+						case 'c':
+						case 'C':
+								System.out.println("Il giocatore "+pds.getTurno()+" ha abbandonato la partita");
+								abb=true;
+								break;
+						case '4':
+						case 'd':
+						case 'D':
+								System.out.println("Inserire nome file: ");
+								path=io.next();
+								System.out.println("Salvataggio...");
+								try
+								{
+									soc.salvaPartita(path, pds.toString(pds.getPosizione()),pds.getMosse(),pds.getPpresi(),pds.getCountInt());
+									System.out.println("...completato.");
+									break;
+								}catch(FileNotFoundException e)
+								{
+									System.out.println("File non presente");
+									break;
+								}
+								
+							default:
+								System.out.println("Scelta non valida");
+								break;
+						}
+					}
+				} 
+				catch (CountException e)
+				{
+					System.out.println("Numero di mosse superiori.Partita Finita");
+					finita=true;
+					break;
+				}
+			}
+			if(scelta.charAt(0)=='2' || scelta.charAt(0)=='B' || scelta.charAt(0)=='b')
+			{
+				System.out.println("Inserire il nome del file da caricare:");
+				path=io.next();
+				try
+				{
+					char Promozione='c';
+					boolean Semplice=true;
+					Partita=soc.caricaPartita(path);
+					pds=new PartitaDiScacchi(Partita);
+					pds.setMosse(soc.caricaMosse(path));
+					pds.setPpresi(soc.caricaPezzi(path));
+					pds.setCount(soc.getCount(path));
+					System.out.println("Caricamento completato,inizio partita");
+					String sceltaMenu="";
+					String mossa;
+					while( abb==false && scacco==false && pds.getCount()==true && pds.getPatta()==true && finita==false )
+					{
+						grf.mostraMenuPartita();
+						grf.stampaScacchiera(pds.toString(pds.getPosizione()));
+						grf.stampaMosseBianche(pds.getMosseBianche());
+						grf.stampaMosseNere(pds.getMosseNere());
+						System.out.println("Scelta del menu':");
+						sceltaMenu=io.next();
+						Casella a;
+						Casella da;
+						switch(sceltaMenu.charAt(0))
+						{
+						case '1':
+						case 'a':
+						case 'A':
+								
+								grf.stampaScacchiera(pds.toString(pds.getPosizione()));
+								System.out.println("");
+								grf.stampaTurnoMosse(pds.getTurno(), pds.getCountInt());
+								System.out.println("");
+								System.out.println("Inserire mossa da eseguire:");
+								mossa=io.next();
+								da=estraiCaselle.estraiCasella(mossa,1);
+								a=estraiCaselle.estraiCasella(mossa,2);
+								if(mossa.length()>6)
+								{
+									da=estraiCaselle.estraiCasella(mossa,1);
+									a=estraiCaselle.estraiCasella(mossa,2);
+									Promozione=mossa.charAt(6);
+									Semplice=false;
+								}else{
+
+									da=estraiCaselle.estraiCasella(mossa,1);
+									a=estraiCaselle.estraiCasella(mossa,2);
+								}
+								try
+								{
+									if(Semplice)
+									{
+										pds.muovi(da, a);
+									}else{
+										PartitaDiScacchi.setPromozione(da, a, pds.getPosizione(), Promozione);
+										Semplice=true;
+									}
+								}
+								catch(CasellaOccupataException e)
+								{
+									System.out.println("Casella Occupata");
+									break;
+								}
+								catch(CasellaVuotaException e)
+								{
+									System.out.println("Casella Vuota");
+									break;
+								}
+								catch(TurnoErratoException e)
+								{
+									System.out.println("Turno errato. ");
+									break;
+								}
+								catch(ScaccoMattoException e)
+								{
+									System.out.println("Scacco Matto");
+									finita=true;
+									break;
+								}
+								catch(MossaIllegaleException e)
+								{
+									System.out.println("Mossa Illegale. ");
+									break;
+								}
+								catch(PattaException e)
+								{
+									System.out.println("Partita patta");
+									finita=true;
+									break;
+								}
+								catch(ReSottoScaccoException e)
+								{
+									System.out.println("Re Sotto Scacco!");
+									break;
+								}
+								catch(AlfiereException e)
+								{
+									System.out.println("Errore Mossa ");
+									break;
+								}
+								catch(DonnaException e)
+								{
+									System.out.println("Errore Mossa ");
+									break;
+								}
+								catch(PedoneException e)
+								{
+									System.out.println("Errore Mossa ");
+									break;
+								}
+								catch(TorreException e)
+								{
+									System.out.println("Errore Mossa ");
+									break;
+								}
+								catch(IllegalArgumentException e)
+								{
+									System.out.println("Dati non validi");
+									break;
+								}
+								catch(NullPointerException e)
+								{
+									System.out.println("Casella non valida");
+									break;
+								}
+								catch(IndexOutOfBoundsException e)
+								{
+									System.out.println("Mossa non completa");
+									break;
+								}
+							break;
+							case '2':
+							case 'b':
+							case 'B':
+								grf.stampaScacchiera(pds.toString(pds.getPosizione()));
+								try
+								{
+									pds.ritira();
+									System.out.println("Ritiro effettuato");
+									grf.stampaScacchiera(pds.toString(pds.getPosizione()));
+									break;
+								}
+								catch(ImpossibileRitirareException e)
+								{
+									System.out.println("Impossibile ritirare");
+									break;
+								}
+							case '3':
+							case 'c':
+							case 'C':
+								System.out.println("Il giocatore "+pds.getTurno()+" ha abbandonato la partita");
+								abb=true;
+								break;
+							case '4':
+							case 'd':
+							case 'D':
+								System.out.println("Inserire nome file: ");
+								path=io.next();
+								System.out.println("Salvataggio...");
+								soc.salvaPartita(path, pds.toString(pds.getPosizione()),pds.getMosse(),pds.getPpresi(),pds.getCountInt());
+								System.out.println("...completato.");
+								break;
+							default:
+								System.out.println("Scelta non valida");
+								break;
+						}
+					}
+				}
+				catch(CaricamentoException e)
+				{
+					System.out.println("Directory non presente.Il file non è presente");
+				}
+				catch(FileNotFoundException e)
+				{
+					System.out.println("File non presente");
+				} catch (CountException e)
+				{
+					System.out.println("Numero di mosse superiori. Partita Finita");
+					finita=true;
+					break;
+				}
+				
+			}
+			System.out.println("Inserire scelta: ");
+			scelta=io.next();	
+		}		
+	}
+	
+}
+
