@@ -1,0 +1,1060 @@
+package Scacchi;
+
+import java.util.*;
+
+import Pezzi.*;
+import Posizione.*;
+import ExceptionPezzi.*;
+import ExceptionPartita.*;
+import ExceptionMosse.*;
+import Utility.FoundScacco;
+import Utility.MaiusOMinuscola;
+import Utility.PresaOMovimento;
+import Utility.Trasform;
+import ExceptionUtility.*;
+
+/**
+ * Classe Partita di Scacchi;
+ * 
+ * 
+ * @author manuel
+ *
+ */
+
+public class PartitaDiScacchi {
+
+	int count;
+	// Variabile scacchiera
+	private Pezzo[][] scacchiera;
+	// Variabile pos
+	private Posizione pos;
+	// Variabile turno
+	private static char turno;
+	// Variabile righe
+	private int righe=8;
+	// Variabile colonne
+	private int colonne=8;
+	// ArrayList<String> per le mosse effettuate
+	private ArrayList<String> mosse;
+	// String[] per la posizione iniziale della scacchiera.
+	private String[] posIniz;
+	// Non si possono usare char negli arrayList. Pertanto si usa il Character(Oggetto che fa riferimento a tipi char)
+	private ArrayList<Character> pezziPresi;
+	// Re bianco
+	Re reB;
+	// Re nero
+	Re reN;
+	
+	/**
+	 * Costruttore della classe PartitaDiScacchi
+	 * Genera una scacchiera di tipo Pezzo con i relativi pezzi.
+	 * Setta il turno al bianco
+	 * @Param null
+	 * @author manuel
+	 */
+	public PartitaDiScacchi()
+	{
+		/* Genero la scacchiera*/
+		pos=new Posizione(righe,colonne);
+		/* Setto il turno al bianco */
+		turno='B';
+		/* Inizializzo l'arrayList per le mosse*/
+		mosse=new ArrayList<String>();
+		/*Inizializzo l'arrayList per i pezzi presi*/
+		pezziPresi=new ArrayList<Character>();
+		// Posizione Iniziale
+		posIniz=null;
+		//Memorizzo i Re
+		reN=Posizione.getReN();
+		reB=Posizione.getReB();	
+		//Memorizzo la scacchiera
+		scacchiera=pos.getScacchiera();
+		int count=0;
+
+	}
+	/**
+	 * Costruttore con parametro
+	 * Analizza la stringa p per generare la scacchiera
+	 * 
+	 * @param String[] p
+	 * @author manuel
+	 */
+	public PartitaDiScacchi(String[] p)
+	{
+		/*Genero la scacchiera*/
+		pos=new Posizione(p,righe,colonne);
+		/*Setto il turno al giocatore*/
+		turno=p[p.length-1].charAt(0);
+		/* Inizializzo l'arrayList per le mosse*/
+		mosse=new ArrayList<String>();
+		/*Inizializzo l'arrayList per i pezzi presi*/
+		pezziPresi=new ArrayList<Character>();
+		//Posizione iniziale
+		posIniz=p;
+		//Memorizzo i Re
+		reN=Posizione.getReN();
+		reB=Posizione.getReB();
+		//Memorizzo la scacchiera
+		scacchiera=pos.getScacchiera();
+		int count=0;
+	}
+	
+	/**
+	 * Metodo getTurno;
+	 * Il seguente metodo ritorna il turno del giocatore.
+	 * 
+	 * @return turno
+	 * @author manuel
+	 */
+	public static char getTurno()
+	{
+		return turno;
+	}
+	
+	/**
+	 * Metodo setTurno;
+	 * Il seguente metodo setta il turno del giocatore;
+	 * 
+	 * @param char Turno
+	 * @return void
+	 * @author manuel
+	 */
+	public static void setTurno(char giocatore)
+	{
+		turno=giocatore;
+	}
+	
+	/**
+	 * Metodo Abbandona;
+	 * Questo metodo ritorna true se il giocatore vuole abbandonare la partita;
+	 * 
+	 * @return true
+	 */
+	public boolean abbandona()
+	{
+		return true;
+	}
+	
+	/**
+	 * Metodo toString;
+	 * Genera come output una stringa che stampa la posizione corrente
+	 * e a chi tocca muovere
+	 * 
+	 * @param Posizione b
+	 * @return String
+	 * @author manuel
+	 */
+	public String[] toString(Posizione b)
+	{
+		String[] turno=new String[righe+1];
+		String scacchiera="";
+		Casella pos=new Casella();
+		Pezzo p;
+		for(int i=0;i<=b.getRighe();i++)
+		{
+			for(int j=0;j<=b.getColonne();j++)
+			{
+				pos.setRiga(i);
+				pos.setColonna(j);
+				p=b.getPezzo(pos);
+				if(p==null)
+				{
+					scacchiera=scacchiera+".";
+				}else{
+					scacchiera=scacchiera+Character.toString(p.getColore());
+				}
+			}
+			turno[i]=scacchiera;
+			scacchiera="";
+		}
+		//Aggiorno il turno del giocatore.
+		turno[righe]=Character.toString(PartitaDiScacchi.getTurno());
+		return turno;
+	}
+	/**
+	 * Metodo toStringPartita;
+	 * Genera una stringa con la posizione iniziale della scacchiera
+	 * se diversa dalla posizione standard e le mosse eseguite.
+	 * 
+	 * @param void
+	 * @return String
+	 * @author manuel
+	 */
+	public String toStringPartita()
+	{
+		String stringa="";
+		// verifico se la posizione è standard o meno
+		if(posIniz==null)
+		{
+			//Posizione standard,inserisco solo le mosse effettuate
+			Iterator<String> lista=mosse.iterator();
+			while(lista.hasNext())
+			{
+				stringa=stringa+lista.next()+" ";
+			}
+			return stringa;
+		}else{
+			//Posizione non standard,inserisco sia la posizione iniziale sia le mosse
+			for(int i=0;i<posIniz.length;i++)
+			{
+				stringa=stringa+posIniz[i]+" ";
+			}
+			//Tramite il for scorro tutte le mosse e le memorizzo
+			Iterator<String> lista=mosse.iterator();
+			while(lista.hasNext())
+			{
+				stringa=stringa+lista.next()+" ";
+			}
+			return stringa;
+		}
+	}
+	/**
+	 * Metodo ritira;
+	 * Il seguente metodo permette di tornare indietro di una mossa.
+	 * Si noti che verrà modificata la scacchiera, tornando alla posizione precedente.
+	 * 
+	 * @return void
+	 * @author manuel
+	 */
+	public void ritira() throws ImpossibileRitirareException
+	{
+		Pezzo pPreso;
+		if(mosse.size()==0)
+			throw new ImpossibileRitirareException();
+		Casella posi=new Casella();
+		String mossa=mosse.get(mosse.size()-1);
+		//Verifico se si tratta di una preso o movimento
+		if(PresaOMovimento.presaOMovimento(mossa))
+		{
+			// Presa
+			//Verifico se è possibile tornare indietro
+			if(pezziPresi.size()==0)
+				throw new ImpossibileRitirareException();
+			//Prendo il pezzo mangiato
+			if(pezziPresi.get(pezziPresi.size()-1)==null)
+			{
+				pPreso=null;
+			}else{
+				pPreso=MaiusOMinuscola.getPezzoPreso(pezziPresi.get(pezziPresi.size()-1));
+			}
+			//Prendo il pezzo che ha mangiato
+			Pezzo p=MaiusOMinuscola.getPezzo(mossa,pos);
+			//Implemento la vecchia scacchiera
+			for(int i=0;i<righe;i++)
+			{
+				for(int j=0;j<colonne;j++)
+				{	
+					//Setto la casella 
+					posi.setRiga(i);
+					posi.setColonna(j);
+					// Inserisco i vecchi pezzi
+					scacchiera[i][j]=pos.getPezzo(posi);
+					// Verifico se mi trovo nella posizione desiderata.
+					if((i==Character.getNumericValue(mossa.charAt(0))) &&(j==Trasform.getInteger((mossa.charAt(1)))))
+					{
+						// Ritorno il pezzo alla casella precedente
+						scacchiera[i][j]=p;
+					}
+					if((i==Character.getNumericValue(mossa.charAt(3))) &&(j==Trasform.getInteger((mossa.charAt(4)))))
+					{
+						// Inserisco il pezzo mangiato
+							scacchiera[i][j]=pPreso;	
+
+					}
+				}
+			}
+			count=count-1;
+			if(turno=='B')
+			{
+				turno='N';
+			}else{
+				turno='B';
+			}
+			//Cancello l'ultimo pezzo inserito.
+			pezziPresi.remove(pezziPresi.size()-1);
+			//Resetto la scacchiera
+			pos.setScacchiera(scacchiera);
+		}else{
+			// Movimento,genero la nuova scacchiera.
+			Pezzo pArr = null;
+			Pezzo p=MaiusOMinuscola.getPezzo(mossa,pos);
+			if(p.getColore()=='T' || p.getColore()=='t')
+			{
+				String mossaArr=Character.toString(mossa.charAt(0))+Character.toString(mossa.charAt(1));
+				pArr=MaiusOMinuscola.getPezzo(mossa, pos);
+			}
+			//Implemento la nuova scacchiera.
+			for(int i=0;i<righe;i++)
+			{
+				for(int j=0;j<colonne;j++)
+				{	
+					//Setto la casella 
+					posi.setRiga(i);
+					posi.setColonna(j);
+					// Inserisco i vecchi pezzi
+					scacchiera[i][j]=pos.getPezzo(posi);
+					// Verifico se mi trovo nella posizione desiderata.
+					if((i==Character.getNumericValue(mossa.charAt(0))) &&(j==Trasform.getInteger((mossa.charAt(1)))))
+					{
+						// Ritorno il pezzo alla casella precedente
+						scacchiera[i][j]=p;
+					}
+					if((i==Character.getNumericValue(mossa.charAt(3))) &&(j==Trasform.getInteger((mossa.charAt(4)))))
+					{
+						// Inserisco null
+						if(pArr!=null)
+						{
+							scacchiera[i][j]=pArr;
+						}
+						scacchiera[i][j]=null;
+					}
+				}
+			}
+			if(turno=='B')
+			{
+				turno='N';
+			}else{
+				turno='B';
+			}
+			count=count-1;
+			turno=turno;
+			// Resetto la scacchiera.
+			pos.setScacchiera(scacchiera);
+		}
+		//Decremento l'ArrayList delle mosse
+		mosse.remove(mosse.size()-1);
+	}
+	
+	/**
+	 * Metodo muovi;
+	 * Il seguente metodo verifica le singole mosse. Tramite opportuni metodi verifica anche lo scacco matto
+	 * o stallo.
+	 * 
+	 * @param Casella da, Casella a 
+	 * @return void
+	 * @throws CasellaOccupataException CasellaVuotaException TurnoErratoException ReSottoScaccoException ScaccoMattoException MossaIllegaleException PattaException
+	 * @throws ScaccoPerpetuoException 
+	 */
+	public void muovi(Casella da, Casella a) throws CasellaOccupataException,CasellaVuotaException, TurnoErratoException, ReSottoScaccoException, ScaccoMattoException, MossaIllegaleException, PattaException, PedoneException, TorreException, AlfiereException, DonnaException, ScaccoPerpetuoException
+	{
+		String mossa;
+		Pezzo p=pos.getPezzo(da);
+		Pezzo p1=pos.getPezzo(da);
+		Casella cDa=new Casella();
+		Casella cA=new Casella();
+		cDa.setRiga(da.getRiga());
+		cA.setRiga(a.getRiga());
+		cDa.setColonna(da.getColonna());
+		cA.setColonna(a.getColonna());
+		if(turno=='B')
+		{
+			
+			if(!MaiusOMinuscola.Maius(p1.getColore()))
+				throw new TurnoErratoException();
+			//Verifico se il re si trova sotto scacco. Bianco
+			if(reB.getSottoScacco())
+			{
+				//Il re si trova sotto scacco.verifico se il movimento coincide con il re.
+				if(pos.getColorePezzo(da)=='R')
+				{
+					//Si tratta del re.Verifico lo scacco
+					if(this.verScacco(reB, cDa, reB.getColore()))
+					{
+						throw new ScaccoMattoException();
+					}else{
+						// Genera movimento. Prendo il pezzo
+						p=pos.getPezzo(da);
+						cDa.setRiga(da.getRiga());
+						cA.setRiga(a.getRiga());
+						cDa.setColonna(da.getColonna());
+						cA.setColonna(a.getColonna());
+						if(p.puoiMuovere(cDa, cA, pos))
+						{
+			
+							// Movimento pezzo, più memorizzo pezzo preso.
+							if(pos.getPezzo(a)==null)
+							{
+								//Nessun pezzo preso. Registro la mossa
+								mossa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna())+"-"+Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+								mosse.add(mossa);
+								pezziPresi.add(null);
+								count++;
+							}else{
+								//Pezzo Preso. Registro il pezzo e la mossa.
+								pezziPresi.add(pos.getPezzo(a).getColore());	
+								mossa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna())+"x"+Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+								mosse.add(mossa);
+								count=0;
+							}
+							//Registro la scacchiera.
+							if(pos.getPezzo(a)==null)
+							{
+								scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+								scacchiera[da.getRiga()][da.getColonna()]=null;
+							}else{
+								if((pos.getColorePezzo(da)=='T' && pos.getColorePezzo(a)=='R') ||(pos.getColorePezzo(a)=='T' && pos.getColorePezzo(da)=='R'))
+								{
+									//Arrocco
+									Pezzo Arr=scacchiera[a.getRiga()][a.getColonna()];
+									scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+									scacchiera[da.getRiga()][da.getColonna()]=Arr;
+									count++;
+						
+								}else{
+									scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+									scacchiera[da.getRiga()][da.getColonna()]=null;
+									count=0;
+								}
+							}
+							//Verifico se posso mangiare il re
+							cDa.setRiga(a.getRiga());
+							cDa.setColonna(a.getColonna());
+							cA=pos.getPosReN();
+							if(p.puoiMangiare(cDa,cA,pos.getColorePezzo(a),pos))
+							{
+								reN.setSottoScacco(a, reN);
+							}
+							reB.nonSottoScacco();
+							//Setto la nuova scacchiera.
+							pos.setScacchiera(scacchiera);
+							turno='N';
+							
+						}else{
+
+							throw new MossaIllegaleException();
+						}
+					}	
+				}else{
+					//Lancio Eccezione
+					throw new ReSottoScaccoException();
+				}
+			}else{
+				//Altro Pezzo.
+				//Verifico il movimento
+				if(!MaiusOMinuscola.Maius(p1.getColore()))
+					throw new TurnoErratoException();
+				p=pos.getPezzo(da);
+				if(p.puoiMuovere(cDa, cA, pos))
+				{
+					//Verifico se il pezzo mangia un pezzo avversario
+					// Movimento pezzo, più memorizzo pezzo preso.
+					if(pos.getPezzo(a)==null)
+					{
+						//Nessun pezzo preso. Registro la mossa
+						if(p.getColore()=='P')
+							count=0;
+						mossa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna())+"-"+Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						mosse.add(mossa);
+						pezziPresi.add(null);
+					}else{
+						
+							//Pezzo Preso. Registro il pezzo e la mossa.
+							pezziPresi.add(pos.getPezzo(a).getColore());	
+							mossa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna())+"x"+Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+							mosse.add(mossa);
+							count=0;
+					}
+					//Registro la scacchiera.
+					if(pos.getPezzo(a)==null)
+					{
+						scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+						scacchiera[da.getRiga()][da.getColonna()]=null;
+						count++;
+					}else{
+						if((pos.getColorePezzo(da)=='T' && pos.getColorePezzo(a)=='R') ||(pos.getColorePezzo(a)=='T' && pos.getColorePezzo(da)=='R'))
+						{
+							//Arrocco
+							Pezzo Arr=scacchiera[a.getRiga()][a.getColonna()];
+							scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+							scacchiera[da.getRiga()][da.getColonna()]=Arr;
+							count++;
+							
+						}else{
+							scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+							scacchiera[da.getRiga()][da.getColonna()]=null;
+						}
+					}
+					cDa.setRiga(a.getRiga());
+					cDa.setColonna(a.getColonna());
+					cA=pos.getPosReN();
+					if(p.puoiMangiare(cDa,cA,pos.getColorePezzo(a),pos))
+					{
+						reN.setSottoScacco(a, reN);
+					}
+					//Setto la nuova scacchiera.
+					pos.setScacchiera(scacchiera);
+					turno='N';
+					
+				}else{
+
+					throw new MossaIllegaleException();
+				}
+			}
+			turno='N';
+		}else{
+			//Turno nero
+			if(MaiusOMinuscola.Maius(p1.getColore()))
+			{
+				throw new TurnoErratoException();
+			}
+			//Verifico se il re si trova sotto scacco. Nero
+			if(reN.getSottoScacco())
+			{
+				//Il re si trova sotto scacco.verifico se il movimento coincide con il re.
+				if(pos.getColorePezzo(da)=='r')
+				{
+					cDa.setRiga(da.getRiga());
+					cA.setRiga(a.getRiga());
+					cDa.setColonna(da.getColonna());
+					cA.setColonna(a.getColonna());
+					//Si tratta del re.Verifico lo scacco
+					if(this.verScacco(reN, cDa, reB.getColore()))
+					{
+						throw new ScaccoMattoException();
+					}else{
+						// Genera movimento. Prendo il pezzo
+						p=pos.getPezzo(da);
+						cDa.setRiga(da.getRiga());
+						cA.setRiga(a.getRiga());
+						cDa.setColonna(da.getColonna());
+						cA.setColonna(a.getColonna());
+						if(p.puoiMuovere(cDa, cA, pos))
+						{
+							// Movimento pezzo, più memorizzo pezzo preso.
+							if(pos.getPezzo(a)==null)
+							{
+								//Nessun pezzo preso. Registro la mossa
+								mossa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna())+"-"+Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+								mosse.add(mossa);
+								pezziPresi.add(null);
+								count++;
+							}else{
+								//Pezzo Preso. Registro il pezzo e la mossa.
+								pezziPresi.add(p.getColore());	
+								mossa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna())+"x"+Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+								mosse.add(mossa);
+								count=0;
+							}
+							//Registro la scacchiera.
+							if(pos.getPezzo(a)==null)
+							{
+								scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+								scacchiera[da.getRiga()][da.getColonna()]=null;
+								count++;
+							}else{
+								if((pos.getColorePezzo(da)=='t' && pos.getColorePezzo(a)=='r') ||(pos.getColorePezzo(a)=='t' && pos.getColorePezzo(da)=='r'))
+								{
+									//Arrocco
+									Pezzo Arr=scacchiera[a.getRiga()][a.getColonna()];
+									scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+									scacchiera[da.getRiga()][da.getColonna()]=Arr;
+									count++;
+									
+								}else{
+									scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+									scacchiera[da.getRiga()][da.getColonna()]=null;
+								}
+							}
+							cDa.setRiga(a.getRiga());
+							cDa.setColonna(a.getColonna());
+							cA=pos.getPosReB();
+							if(p.puoiMangiare(cDa,cA,pos.getColorePezzo(a),pos))
+							{
+								reB.setSottoScacco(a, reB);
+							}
+							//Setto la nuova scacchiera.
+							pos.setScacchiera(scacchiera);
+							turno='B';
+							reN.nonSottoScacco();
+						}else{
+							throw new MossaIllegaleException();
+						}
+					}	
+				}else{
+					//Lancio Eccezione
+					throw new ReSottoScaccoException();
+				}
+			}else{
+				if(MaiusOMinuscola.Maius(p1.getColore()))
+					throw new TurnoErratoException();
+				//Altro Pezzo.
+				//Verifico il movimento
+				p=pos.getPezzo(da);
+				if(p.puoiMuovere(cDa, cA, pos))
+				{
+					
+					//Verifico se il pezzo mangia un pezzo avversario
+					// Movimento pezzo, più memorizzo pezzo preso.
+					if(pos.getPezzo(a)==null)
+					{
+						//Nessun pezzo preso. Registro la mossa
+						if(p.getColore()=='p')
+							count=0;
+						mossa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna())+"-"+Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						mosse.add(mossa);
+						pezziPresi.add(null);
+						count++;
+					}else{
+						//Pezzo Preso. Registro il pezzo e la mossa.
+						pezziPresi.add(pos.getPezzo(a).getColore());	
+						mossa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna())+"x"+Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						mosse.add(mossa);
+						count=0;
+					}
+					//Registro la scacchiera.
+					if(pos.getPezzo(a)==null)
+					{
+						scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+						scacchiera[da.getRiga()][da.getColonna()]=null;
+					}else{
+						if((pos.getColorePezzo(da)=='t' && pos.getColorePezzo(a)=='r') ||(pos.getColorePezzo(a)=='t' && pos.getColorePezzo(da)=='r'))
+						{
+							//Arrocco
+							Pezzo Arr=scacchiera[a.getRiga()][a.getColonna()];
+							scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+							scacchiera[da.getRiga()][da.getColonna()]=Arr;
+							count++;
+							
+						}else{
+							scacchiera[a.getRiga()][a.getColonna()]=scacchiera[da.getRiga()][da.getColonna()];
+							scacchiera[da.getRiga()][da.getColonna()]=null;
+						}
+					}
+					cDa.setRiga(a.getRiga());
+					cDa.setColonna(a.getColonna());
+					cA=pos.getPosReB();
+					if(p.puoiMangiare(cDa,cA,pos.getColorePezzo(a),pos))
+					{
+						reB.setSottoScacco(a, reB);
+					}
+					//Setto la nuova scacchiera.
+					pos.setScacchiera(scacchiera);
+					turno='B';
+					
+				}else{
+					throw new MossaIllegaleException();
+				}
+			}
+			turno='B';
+		}
+	}
+	/**
+	 * Metodo verScacco;
+	 * Il seguente metodo verifica lo scacco matto.
+	 * 
+	 * @param Re re
+	 * @return boolean
+	 * @author manuel
+	 */
+	
+	public boolean verScacco(Re re,Casella da,char colore)
+	{
+	
+		String mosseRe=re.getMosse(re.getColore(),da, pos);
+		if(mosseRe=="")
+		{
+			//Nessuna mossa possibile, scacco matto
+			return true;
+		}else{
+			//Verifico le posizioni di tutti i pezzi.
+			if(colore=='r')
+			{
+				//nero
+				ArrayList<String> array=new ArrayList<String>();
+				String mosse;
+				Casella daS=new Casella();
+				Pezzo p;
+				for(int i=0;i<scacchiera.length;i++)
+				{
+					for(int j=0;j<scacchiera[0].length;j++)
+					{
+						if(scacchiera[i][j]==null)
+						{
+							continue;
+						}else{
+							p=scacchiera[i][j];
+							if(MaiusOMinuscola.Maius(p.getColore()))
+							{
+								//Bianco;
+								daS.setColonna(j);
+								daS.setRiga(i);
+								mosse=p.getMosse(p.getColore(), daS, pos);
+								array.add(mosse);
+							}else{
+								//Nero
+								continue;
+							}
+						}
+						
+					}	
+				}
+				//Richiamo la funzione per lo scacco.
+				return FoundScacco.foundScacco(mosseRe,array);
+			}else{
+				//bianco prelevo le mosse
+				ArrayList<String> array=new ArrayList<String>();
+				String mosse;
+				Casella daS=new Casella();
+				Pezzo p;
+				for(int i=0;i<scacchiera.length;i++)
+				{
+					for(int j=0;j<scacchiera[0].length;j++)
+					{
+						if(scacchiera[i][j]==null)
+						{
+							continue;
+						}else{
+							p=scacchiera[i][j];
+							if(MaiusOMinuscola.Maius(p.getColore()))
+							{
+								//Bianco;
+								continue;
+							}else{
+								//Nero
+								daS.setColonna(j);
+								daS.setRiga(i);
+								mosse=p.getMosse(p.getColore(), daS, pos);
+								array.add(mosse);
+							}
+						}
+						
+					}
+					
+				}
+				//Richiamo la funzione per lo scacco.
+				return FoundScacco.foundScacco(mosseRe,array);
+			}
+		}
+	}
+	
+	/**
+	 * Metodo getMosseBianche;
+	 * Ritorna tutte le mosse presenti dei pezzi bianchi;
+	 * 
+	 * @return String
+	 * @author manuel
+	 */
+	public ArrayList<String> getMosseBianche()
+	{
+		ArrayList<String> array=new ArrayList<String>();
+		String mosse;
+		Casella da=new Casella();
+		Pezzo p;
+		for(int i=0;i<righe;i++)
+		{
+			for(int j=0;j<colonne;j++)
+			{
+				if(scacchiera[i][j]==null)
+				{
+					continue;
+				}else{
+					p=scacchiera[i][j];
+					if(MaiusOMinuscola.Maius(p.getColore()))
+					{
+						//Bianco;
+						da.setColonna(j);
+						da.setRiga(i);
+						mosse=p.getMosse(p.getColore(), da, pos);
+						array.add(mosse);
+					}else{
+						//Nero
+						continue;
+					}
+				}
+				
+			}
+		}
+		return array;
+	}
+	/**
+	 * Metodo getMosseNere;
+	 * Ritorna tutte le mosse presenti dei pezzi bianchi;
+	 * 
+	 * @return String
+	 * @author manuel
+	 */
+	public ArrayList<String> getMosseNere()
+	{
+		ArrayList<String> array=new ArrayList<String>();
+		String mosse;
+		Casella da=new Casella();
+		Pezzo p;
+		for(int i=0;i<scacchiera.length;i++)
+		{
+			for(int j=0;j<scacchiera[0].length;j++)
+			{
+				if(scacchiera[i][j]==null)
+				{
+					continue;
+				}else{
+					p=scacchiera[i][j];
+					if(MaiusOMinuscola.Maius(p.getColore()))
+					{
+						//Bianco;
+						continue;
+					}else{
+						//Nero
+						da.setColonna(j);
+						da.setRiga(i);
+						mosse=p.getMosse(p.getColore(), da, pos);
+						array.add(mosse);
+					}
+				}
+					
+			}
+		}
+		return array;
+	}		
+	
+	/**
+	 * Metodo setPromozione;
+	 * Metodo che promuove un pedone in un qualsiasi pezzo.
+	 * 
+	 * @param Casella da, Casella a, Posizione b, Pezzo
+	 * @return boolean
+	 * @throws ReSottoScaccoException  CasellaVuotaException  MossaIllegaleException  CasellaOccupataException DonnaException  AlfiereException  TorreException  PedoneException 
+	 * @throws ScaccoPerpetuoException 
+	 */
+	public static boolean setPromozione(Casella da,Casella a,Posizione b,char pezzo) throws PedoneException, TorreException, AlfiereException, DonnaException, CasellaOccupataException, MossaIllegaleException, CasellaVuotaException, ReSottoScaccoException, ScaccoPerpetuoException
+	{
+		Pezzo p=b.getPezzo(da);
+		Re rn=(Re) b.getPezzo(b.getPosReN());
+		Re rb=(Re) b.getPezzo(b.getPosReB());
+		Pezzo p1=b.getPezzo(a);
+		if(p.getColore()!='P' || p.getColore()!='p')
+		{
+			throw new MossaIllegaleException();
+		}
+		if(p.puoiMuovere(da, a, b))
+		{
+			if(MaiusOMinuscola.Maius(p.getColore()))
+			{
+				if(pezzo=='C')
+				{
+					p=new Cavallo('C');
+					b.setPezzo(a,p);
+					b.setPezzo(da, null);
+				}
+				if(pezzo=='T')
+				{
+					p=new Torre('T');
+					b.setPezzo(a,p);
+					b.setPezzo(da, null);				
+				}
+				if(pezzo=='A')
+				{
+					p=new Alfiere('A');
+					b.setPezzo(a,p);
+					b.setPezzo(da, null);				
+				}
+				if(pezzo=='D')
+				{
+					p=new Donna('D');
+					b.setPezzo(a,p);
+					b.setPezzo(da, null);				
+				}
+				if(p.puoiMangiare(a, b.getPosReN(),p.getColore() , b))
+				{
+					rn.setSottoScacco(a, rn);
+				}
+				
+			}else{
+				if(pezzo=='c')
+				{
+					p=new Cavallo('c');
+					b.setPezzo(a,p);
+					b.setPezzo(da, null);
+				}
+				if(pezzo=='t')
+				{
+					p=new Torre('t');
+					b.setPezzo(a,p);
+					b.setPezzo(da, null);				
+				}
+				if(pezzo=='a')
+				{
+					p=new Alfiere('a');
+					b.setPezzo(a,p);
+					b.setPezzo(da, null);				
+				}
+				if(pezzo=='d')
+				{
+					p=new Donna('d');
+					b.setPezzo(a,p);
+					b.setPezzo(da, null);				
+				}
+				if(p.puoiMangiare(a, b.getPosReB(),p.getColore() , b))
+				{
+					rb.setSottoScacco(a, rb);
+				}
+				
+			}
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	/**
+	 * Metodo getPosizione;
+	 * il seguente metodo ritorna la posizione attuale
+	 * 
+	 * @param void
+	 * @return Pezzo[][] scacchiera
+	 * @author manuel
+	 */
+	public Posizione getPosizione()
+	{
+		return pos;
+	}
+	/**
+	 * Metodo getCount;
+	 * ritorna true se è possibile continuare altrimenti exception.
+	 * 
+	 * @return int count
+	 */
+	public boolean getCount() throws CountException 
+	{
+		if(count<=50)
+			return true;
+		throw new CountException();
+	}
+	/**
+	 * Metodo getCount;
+	 * ritorna il numero di mosse consentite prima dello stallo.
+	 * 
+	 * @return int count
+	 */
+	public int getCountInt() 
+	{
+		return count;
+	}
+	/**
+	 * Metodo setCOunt;
+	 * utile per il caricamento della partita.
+	 * 
+	 * @param count
+	 * @author manuel
+	 */
+	public void setCount(int count)
+	{
+		this.count=count;
+	}
+	/**
+	 * Metodo getPatta;
+	 * metodo che conta i pezzi in gioco e verifica se la partita è patta o meno
+	 * 
+	 * @return
+	 * @throws PattaException 
+	 */
+	public boolean getPatta() throws PattaException
+	{
+		int bianco=0;
+		int nero=0;
+		int pbianco=0;
+		int pnero=0;
+		for(int i=0;i<scacchiera.length;i++)
+		{
+			for(int j=0;j<scacchiera[0].length;j++)
+			{
+					if(scacchiera[i][j]!=null)
+					{
+						if(MaiusOMinuscola.Maius(scacchiera[i][j].getColore()))
+						{
+							if(scacchiera[i][j].getColore()=='P')
+							{
+								pbianco++;
+							}else{
+								bianco++;
+							}
+						}else{
+							if(scacchiera[i][j].getColore()=='p')
+							{
+								pnero++;
+							}else{
+								nero++;
+							}
+						}
+					}
+			}
+		}
+		if(pnero+nero>=2 && pbianco+bianco>=2)
+		{
+			return true;
+		}else{
+			throw new PattaException();
+		}
+	}
+	
+	/**
+	 * Metodo privato addMosse;
+	 * Utile per la promozione del pedone.
+	 * Aggiunge una nuova mossa all'arrayList
+	 * 
+	 * @author manuel
+	 */
+	public void addMosse(String Mossa)
+	{
+		this.mosse.add(Mossa);
+	}
+	
+	/**
+	 * Metodo addPezzi;
+	 * Utile per la promozione del pedone.
+	 * Aggiunge un pezzo all'arrayList
+	 * 
+	 * @author manuel
+	 */
+	public void addPezzi(char pezzo)
+	{
+		this.pezziPresi.add(pezzo);
+	}
+	
+	/**
+	 * Metodo getMosse;
+	 * Utile per il salvataggio partita
+	 * 
+	 * @author manuel
+	 */
+	
+	public ArrayList<String> getMosse()
+	{
+		return mosse;
+	}
+	
+	/**
+	 * Metodo getPpresi;
+	 * Utile per il salvataggio partita
+	 * 
+	 * @author manuel
+	 */
+	
+	public ArrayList<Character> getPpresi()
+	{
+		return pezziPresi;
+	}
+	
+	/**
+	 * Metodo setMosse;
+	 * Utile per il caricamento partita
+	 * 
+	 * @author manuel
+	 */
+	
+	public void setMosse(ArrayList<String> mosse)
+	{
+		this.mosse=mosse;
+	}
+	
+	/**
+	 * Metodo setPpresi;
+	 * Utile per il caricamento partita
+	 * 
+	 * @author manuel
+	 */
+	
+	public void setPpresi(ArrayList<Character> presi)
+	{
+		pezziPresi=presi;
+	}
+}
