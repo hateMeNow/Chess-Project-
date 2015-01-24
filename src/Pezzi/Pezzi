@@ -1,0 +1,22 @@
+package Pezzi;
+import ExceptionMosse.CasellaOccupataException;
+import ExceptionMosse.CasellaVuotaException;
+import ExceptionMosse.MossaIllegaleException;
+import ExceptionPartita.ReSottoScaccoException;
+import ExceptionPezzi.*;
+
+import Posizione.*;
+
+/**
+ * Interfaccia Pezzo
+ * Metodi:1
+ * @author manuel
+ *
+ */
+public interface Pezzo {
+
+	char getColore();
+	boolean puoiMuovere(Casella da,Casella a,Posizione b)throws PedoneException,TorreException,AlfiereException,DonnaException,CasellaOccupataException,MossaIllegaleException, CasellaVuotaException, ReSottoScaccoException;
+	String getMosse(char colore, Casella da,Posizione b);
+	boolean puoiMangiare(Casella da,Casella a,char colore,Posizione b );
+}
