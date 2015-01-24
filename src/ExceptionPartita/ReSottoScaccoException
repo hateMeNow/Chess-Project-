@@ -1,0 +1,5 @@
+package ExceptionPartita;
+
+public class ReSottoScaccoException extends Exception {
+
+}
