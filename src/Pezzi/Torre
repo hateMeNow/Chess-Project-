@@ -1,0 +1,759 @@
+package Pezzi;
+import Posizione.*;
+import ExceptionMosse.*;
+import ExceptionPezzi.TorreException;
+import Utility.*;
+
+
+
+/**
+ * Classe Torre;
+ * Movimento: La torre si può muovere per tutta la riga o colonna
+ * Exception: Si arresta quando un elemento ne ostacola il movimento
+ * 
+ * @author manuel
+ *
+ */
+public class Torre implements Pezzo {
+	
+	private static boolean mosso;
+	/**
+	 * Variabile per definire il colore del pezzo;
+	 */
+	
+	private char colore;
+	/**
+	 * Costruttore per Torre;
+	 * 
+	 * @param colore
+	 */
+	public Torre(char colore)
+	{
+		this.colore=colore;
+		this.mosso=false;
+	}
+	/**
+	 * Metodo che ritorna il colore del pezzo; 
+	 * @retur char
+	 */
+	public char getColore()
+	{
+		return colore;
+	}
+	
+	
+	/**
+	 * Metodo setMosso;
+	 * Setta la variabile booleana a true; 
+	 * Utile per l'arrocco
+	 * 
+	 * @author manuel
+	 * @param void
+	 */
+	
+	public static void setMosso()
+	{
+		mosso=true;
+	}
+	/**
+	 * Metodo setMosso;
+	 * Setta la variabile booleana a true; 
+	 * Utile per l'arrocco
+	 * 
+	 * @author manuel
+	 * @param void
+	 * @return mosso\boolean
+	 */
+	
+	public static boolean getMosso()
+	{
+		 return mosso;
+	}
+	
+	/**
+	 * Metodo puoiMuovere;
+	 * Verifica il movimento della torre e lancia un opportuna eccezione.
+	 * @param Casella da,Casella a, Posizione b
+	 * NB: Si noti che torreException e CasellaOccupataexception si riferisco a due eccezioni particolari
+	 * @return boolean
+	 * @throws TorreException,CasellaOccupataException,MossaIllegaleException
+	 * @author manuel
+	 */
+	public boolean puoiMuovere(Casella da, Casella a,Posizione b) throws TorreException,CasellaOccupataException,MossaIllegaleException
+	{
+		if((da.getRiga()==a.getRiga()))
+		{
+				/*Movimento Orizzontale*/
+
+			try
+			{
+				if(Torre.searchPezziOriz(da, a, b))
+				{
+						this.mosso=true;
+						return true;
+				}
+			}catch(TorreException e)
+			{
+				/*Casella Occupata*/
+				throw new CasellaOccupataException();
+			} 
+			catch (MossaIllegaleException e) 
+			{
+				/*Mossa Illegale*/
+				throw new MossaIllegaleException();
+
+			}
+			catch(CasellaOccupataException e)
+			{
+				/*CasellaOccupata*/
+				throw new CasellaOccupataException();
+			}
+		
+		}
+		if(da.getColonna()==a.getColonna())
+		{
+				/*Movimento Verticale*/
+			try
+			{
+				if(Torre.searchPezziVert(da,a, b))
+				{
+					this.mosso=true;
+					return true;
+				}
+			}
+			catch(TorreException e)
+			{
+				/*Casella Occupata */
+				throw new CasellaOccupataException();
+			}
+			catch(CasellaOccupataException e)
+			{
+				/*Casella occupata*/
+				throw new CasellaOccupataException();
+			}
+			catch(MossaIllegaleException e)
+			{
+				/*Mossa Illegale Exception*/
+				throw new MossaIllegaleException();
+			}
+		}
+		/*Movimento Errato*/
+		throw new TorreException();	
+	}
+	
+	/**
+ 	* Metodo searchPezziOriz;
+ 	* Metodo statico, che verrà utilizzato anche dalla donna, che verifica
+ 	* se sono presenti pezzi nel tragitto o mosse illegali
+ 	* @param Casella colDa Casella colA Posizione b
+ 	* @return boolean
+ 	* @throws TorreException CasellaOccupataException MossaIllegaleException
+ 	* @author manuel
+ 	*/
+	public static boolean searchPezziOriz(Casella colDa,Casella colA, Posizione b) throws TorreException,CasellaOccupataException, MossaIllegaleException
+	{
+		int colo=colDa.getColonna();
+		char color=b.getColorePezzo(colDa);
+		Pezzo p;
+		if(colDa.getColonna()==colA.getColonna())
+		{
+			throw new MossaIllegaleException();
+		}
+		p=b.getPezzo(colA);
+		if(p!=null)
+		{
+			if(MaiusOMinuscola.Maius(color))
+			{
+				//bianco
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					if(p.getColore()=='R' || ( Torre.getMosso()==false && Re.getMosso()==false ))
+					{
+						//Arrocco
+					}else{
+						throw new TorreException();
+					}
+				}
+					
+			}else{
+				if(!MaiusOMinuscola.Maius(p.getColore()))
+				{
+					if(p.getColore()=='r' || ( Torre.getMosso()==false && Re.getMosso()==false ))
+					{
+						//Arrocco
+					}else{
+						throw new TorreException();
+					}
+				}
+			}
+		}
+
+		if(colDa.getColonna()>colA.getColonna())
+		{
+			while(colDa.getColonna()-1>=colA.getColonna()+1)
+			{
+				colA.incrementaColonna();
+				p=b.getPezzo(colA);
+				if(colA.getColonna()==colDa.getRiga() )
+				{
+					break;
+				}	
+				if(p==null)
+				{
+					
+					continue;
+				}else{
+					if(color=='t')
+					{
+						if(MaiusOMinuscola.Maius(p.getColore()))
+						{
+								throw new TorreException();
+						}else{
+							throw new CasellaOccupataException();
+						}
+					}else{
+						if(MaiusOMinuscola.Maius(p.getColore()))
+						{
+								throw new TorreException();
+						}else{
+							throw new CasellaOccupataException();
+						}
+					}
+				}
+			}
+			return true;
+		}else{
+			while(colA.getColonna()-1>=colDa.getColonna()+1)
+			{
+				colA.decrementaColonna();
+				p=b.getPezzo(colA);
+				if(colA.getColonna()==colDa.getColonna())
+				{
+					break;
+				}		
+
+				if(p==null)
+				{
+					
+					continue;
+				}else{
+					if(color=='t')
+					{
+						if(MaiusOMinuscola.Maius(p.getColore()))
+						{
+								throw new TorreException();
+						}else{
+							throw new CasellaOccupataException();
+						}
+					}else{
+						if(MaiusOMinuscola.Maius(p.getColore()))
+						{
+									throw new TorreException();
+						}else{
+								throw new CasellaOccupataException();
+						}
+					}
+				}
+			}
+			return true;
+		}
+	}
+	
+	/**
+ 	* Metodo searchPezziVert;
+ 	* Metodo statico, che verrà utilizzato anche dalla donna, che verifica
+ 	* se sono presenti pezzi nel tragitto o mosse illegali
+ 	* @param Casella colDa Casella colA Posizione b
+ 	* @return boolean
+ 	* @throws TorreException CasellaOccupataException MossaIllegaleException
+ 	* @author manuel
+ 	*/	
+	public static boolean searchPezziVert(Casella rigDa,Casella rigA, Posizione b) throws TorreException,CasellaOccupataException, MossaIllegaleException
+	{
+		int rig=rigA.getRiga();
+		char color=b.getColorePezzo(rigDa);
+		Pezzo p;
+		if(rigDa.getRiga()==rigA.getRiga())
+		{
+			throw new MossaIllegaleException();
+		}
+		
+		p=b.getPezzo(rigA);
+		if(p!=null)
+		{
+
+			if(MaiusOMinuscola.Maius(color))
+			{
+				//bianco
+				if(MaiusOMinuscola.Maius(p.getColore()))
+					throw new TorreException();
+			}else{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					//continua
+				}else{
+					throw new TorreException();
+					
+				}
+			}
+		}
+
+		if(rigDa.getRiga()>rigA.getRiga())
+		{
+			while(rigDa.getRiga()-1>=rigA.getRiga()+1)
+			{
+				rigA.incrementaRiga();
+				p=b.getPezzo(rigA);
+				if(rigA.getRiga()==rigDa.getRiga())
+				{
+					break;
+				}	
+				if(p==null)
+				{	
+					continue;
+				}else{
+					if(color=='t')
+					{
+						if(MaiusOMinuscola.Maius(p.getColore()))
+						{
+								throw new TorreException();
+						}else{
+							throw new CasellaOccupataException();
+						}
+					}else{
+						if(MaiusOMinuscola.Maius(p.getColore()))
+						{
+								throw new TorreException();
+						}else{
+							throw new CasellaOccupataException();
+						}
+					}
+				}
+			}
+			return true;
+		}else{
+			while(rigA.getRiga()-1>=rigDa.getRiga()+1)
+			{
+				rigA.decrementaRiga();
+				p=b.getPezzo(rigA);
+				if(rigA.getRiga()==rigDa.getRiga() )
+				{
+					break;
+				}	
+				if(p==null)
+				{
+					
+					continue;
+				}else{
+					if(color=='t')
+					{
+						if(MaiusOMinuscola.Maius(p.getColore()))
+						{
+								throw new TorreException();
+						}else{
+							
+							throw new CasellaOccupataException();
+						}
+					}else{
+						if(MaiusOMinuscola.Maius(p.getColore()))
+						{
+									throw new TorreException();
+						}else{
+							
+								throw new CasellaOccupataException();
+						}
+					}
+				}
+			}
+			return true;
+		}
+	}
+	/**
+	 * Metodo statico getMosse;
+	 * ritorna le mosse possibili per il pezzo torre.
+	 * si noti che ogni casella di arrivo è una possibile presa verso l avversario.
+	 * 
+	 * @param char colore, Casella da, Posizione b
+	 * @return arr
+	 * @author manuel
+	 */
+	public static String getMosseT(char colore,Casella da,Posizione b)
+	{
+		Pezzo p ;
+		/*Casella per ottenere i pezzi durante la mossa*/
+		Casella a=new Casella();
+		/*Stringa che ritorna*/
+		String arr="";
+		/*Posizione casella*/
+		String cDa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna());
+		/*Posizione dove mangia*/
+		String dM="";
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		/*movimento verso sinistra,decremento colonne*/
+		for(int i=da.getColonna();i>0;i--)
+		{
+			a.decrementaColonna();
+			p=b.getPezzo(a);
+			if(p==null)
+			{
+				dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+				arr=arr+cDa+"x"+dM+" ";
+				continue;
+			}
+			if(colore=='t')
+			{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					try
+					{
+						if(Torre.searchPezziOriz(da, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";	
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+					catch(TorreException e)
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+						break;
+					}
+					catch(MossaIllegaleException e)
+					{
+						break;
+					}
+				}else{
+					break;
+				}
+			}else{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					break;
+				}else{
+					try
+					{
+						if(Torre.searchPezziOriz(da, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";	
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+					catch(TorreException e)
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					catch(MossaIllegaleException e)
+					{
+						break;
+					}							
+				}
+			}
+		}
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		/*Movimento verso destra,incremento colonne*/
+		for(int i=da.getColonna();i<b.getColonne();i++)
+		{
+			a.incrementaColonna();
+			p=b.getPezzo(a);
+			if(p==null)
+			{
+				dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+				arr=arr+cDa+"x"+dM+" ";
+				continue;
+			}
+			if(colore=='t')
+			{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					try
+					{
+						if(Torre.searchPezziOriz(da, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";	
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+					catch(TorreException e)
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+						break;
+					}
+					catch(MossaIllegaleException e)
+					{
+						break;
+					}
+				}else{
+					break;
+				}
+			}else{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					break;
+				}else{
+					try
+					{
+						if(Torre.searchPezziOriz(da, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";	
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+					catch(TorreException e)
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					catch(MossaIllegaleException e)
+					{
+						break;
+					}							
+				}
+			}
+		}
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		/*Movimento verso l alto,decremento righe*/
+		for(int i=da.getRiga();i>0;i--)
+		{
+			a.decrementaRiga();
+			p=b.getPezzo(a);
+			if(p==null)
+			{
+				dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+				arr=arr+cDa+"x"+dM+" ";
+				continue;
+			}
+			if(colore=='t')
+			{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					try
+					{
+						if(Torre.searchPezziOriz(da, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";	
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+					catch(TorreException e)
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					catch(MossaIllegaleException e)
+					{
+						break;
+					}
+				}else{
+					break;
+				}
+			}else{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					break;
+				}else{
+					try
+					{
+						if(Torre.searchPezziOriz(da, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";	
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+					catch(TorreException e)
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					catch(MossaIllegaleException e)
+					{
+						break;
+					}							
+				}
+			}
+		}
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		/*Movimento verso il basso,incremento righe*/
+		for(int i=da.getRiga();i<b.getRighe();i++)
+		{
+			a.incrementaRiga();
+			p=b.getPezzo(a);
+			if(p==null)
+			{
+				dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+				arr=arr+cDa+"x"+dM+" ";
+				continue;
+			}
+			if(colore=='t')
+			{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					try
+					{
+						if(Torre.searchPezziOriz(da, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";	
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+					catch(TorreException e)
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					catch(MossaIllegaleException e)
+					{
+						break;
+					}
+				}else{
+					break;
+				}
+			}else{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					break;
+				}else{
+					try
+					{
+						if(Torre.searchPezziOriz(da, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";	
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+					catch(TorreException e)
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					catch(MossaIllegaleException e)
+					{
+						break;
+					}							
+				}
+			}
+		}
+		return arr;
+	}	
+	/**
+	 * Metodo che richiama getMosseT, T sta per torre.
+	 * 
+	 */
+	public String getMosse(char colore,Casella da,Posizione b)
+	{
+		String mosse=Torre.getMosseT(colore, da, b);
+		return mosse;
+	}
+	/**
+	 * Metodo puoiMangiare
+	 * 
+	 * @param Casella da, Casella a, char colore,Posizione b
+	 * @author manuel
+	 * return boolean
+	 */
+	public boolean puoiMangiare(Casella da,Casella a,char colore,Posizione b)
+	{
+
+		if(Torre.puoiMangiareT(da, a, b))
+			return true;
+		return false;
+	}
+	/**
+	 * Metodo puoiMangiareT;
+	 * Metodo statico per verificare se il pezzo può mangiare o meno
+	 * 
+	 * @param Casella da,Casella a, Posizione b
+	 * @return boolean
+	 * @author manuel
+	 */
+	
+	public static boolean puoiMangiareT(Casella da,Casella a,Posizione b)
+	{
+		if( (Math.abs(da.getRiga()-a.getRiga())!=0) && (Math.abs(da.getColonna()-a.getColonna())!=0))
+			// Movimento della torre errato
+			return false;
+		if((da.getRiga()-a.getRiga())==0)
+		{
+				/*Movimento Orizzontale*/
+
+			try
+			{
+				if(Torre.searchPezziOriz(da, a, b))
+					
+						return true;
+			}catch(TorreException e)
+			{
+				/*Casella Occupata*/
+				return false;
+			} 
+			catch (MossaIllegaleException e) 
+			{
+				/*Mossa Illegale*/
+				return false;
+
+			}
+			catch(CasellaOccupataException e)
+			{
+				/*CasellaOccupata*/
+				return false;
+			}
+		
+		}
+		if((da.getColonna()-a.getColonna())==0)
+		{
+				/*Movimento Verticale*/
+			try
+			{
+				if(Torre.searchPezziVert(da,a, b))
+					return true;
+			}
+			catch(TorreException e)
+			{
+				/*Casella Occupata */
+				return false;
+			}
+			catch(CasellaOccupataException e)
+			{
+				/*Casella occupata*/
+				return false;
+			}
+			catch(MossaIllegaleException e)
+			{
+				/*Mossa Illegale Exception*/
+				return false;
+			}
+		}
+		/*Movimento Errato*/
+		return false;	
+	}
+
+}
