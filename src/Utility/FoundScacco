@@ -1,0 +1,71 @@
+package Utility;
+import java.util.*;
+
+public class FoundScacco {
+
+	/**
+	 * Metodo foundScacco;
+	 * Cerca tra le mosse possibili, lo scacco del re.
+	 * 
+	 * @param String mosse, ArrayList<String> MosseAvv
+	 * @return
+	 */
+	public static boolean foundScacco(String mosse,ArrayList<String> MosseAvv)
+	{
+		//Variabile booleana
+		boolean found=false;
+		//Iterator per scorrere la lista
+		Iterator<String> lista=MosseAvv.iterator();
+		//Mosse di ogni pezzo avversario
+		String mosseAvv;
+		// Casella dove può avvenire il movimento
+		String casella;
+		// Casella dove il pezzo avversario può muovere
+		String casAvv;
+		// L'incremento è in base 6
+
+		for(int i=3;i<mosse.length();i=i+6)
+		{
+			//Prendo la casella di arrivo 
+
+			casella=mosse.substring(i,i+2);
+			//Scorro tutte le mosse avversarie
+			while(lista.hasNext())
+			{			
+				//Prendo una mossa di un pezzo avversario
+				mosseAvv=lista.next();
+
+				//Verifico se può arrivare alla casella 
+				for(int j=3;j<mosseAvv.length();j=j+6)
+				{
+
+					casAvv=mosseAvv.substring(j,j+2);
+					if(casella.equals(casAvv))
+					{
+						// Inutile verificare le successive mosse
+						found=true;
+						break;
+					}
+				}
+				//Inutile che scorro i successi pezzi.
+				if(found)
+					break;
+			}
+			if(found)
+			{
+				// Setto a false la variabile boolean
+				lista=MosseAvv.iterator();
+				if(i+6>mosse.length())
+					return found;
+				found=false;
+				continue;
+			}else{
+				//Non trovato, nessuno scacco
+				return false;
+			}
+		}
+		
+		//Ritorno true o false;
+		return found;
+	}
+}
