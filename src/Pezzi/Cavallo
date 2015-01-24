@@ -1,0 +1,400 @@
+package Pezzi;
+import Posizione.*;
+import Utility.MaiusOMinuscola;
+import Utility.Trasform;
+import ExceptionMosse.CasellaOccupataException;
+import ExceptionMosse.MossaIllegaleException;
+import java.math.*;
+/**
+ * Classe Cavallo;
+ * Movimento: Movimento ad L
+ * Exception: Non viene ostacolato da nessun pezzo nel suo movimento, nessun eccezione
+ * 
+ * @author manuel
+ *
+ */
+
+public class Cavallo implements Pezzo {
+	/**
+	 * Variabile per definire il colore del pezzo;
+	 */
+	private char colore;
+	/**
+	 * Costruttore per Cavallo;
+	 * 
+	 * @param colore
+	 */
+	public Cavallo (char colore)
+	{
+		this.colore=colore;
+	}
+	/**
+	 * Metodo che ritorna il colore del pezzo; 
+	 * @retur char
+	 */
+	public char getColore()
+	{
+		return colore;
+	}
+	/**
+	 * Metodo puoiMuovere;
+	 * Il moviemento del cavallo non è ostacolato da nessun pezzo
+	 * Notiamo che il movimento consiste in 3 caselle ( due righe e una colonna o due colonne e una riga)
+	 * 
+	 * @param Casella da,Casella a, Posizione b
+	 * @return boolean
+	 * @throw MossaIllegaleException, CasellaOccupataException
+	 */
+	public boolean puoiMuovere(Casella da, Casella a,Posizione b) throws CasellaOccupataException,MossaIllegaleException
+	{
+		/*Verifico se il moviment*/
+		if((da.getRiga()!=a.getRiga()) && (da.getColonna()!=a.getColonna()))
+		{
+			/*Verifichiamo se il movimento consiste di tre passi*/
+			if (((Math.abs(da.getRiga()-a.getRiga())) + (Math.abs(da.getColonna()-a.getColonna()))) == 3)
+			{
+				/*Verifico se la casella è occupata o meno*/
+				Pezzo p1=b.getPezzo(a);
+				if(p1==null)
+				{
+					return true;
+				}else{
+					/*La casella è occupata, verifico se il pezzo è dello stesso colore*/
+					char p2=b.getColorePezzo(da);
+					if(MaiusOMinuscola.Maius(p2))
+					{
+						/*Maiuscola, Pezzo Bianco*/
+						if(MaiusOMinuscola.Maius(p1.getColore()))
+						{
+							/*Lettera Maiuscola, Exception*/
+							throw new CasellaOccupataException();
+						}
+						/*Lettera Minuscola*/
+						return true;
+					}else{
+						/*Minuscola, Pezzo nero*/
+						if(MaiusOMinuscola.Maius(p1.getColore()))
+						{
+							/*Lettera Maiuscola, ritorno true;*/
+							return true;
+						}
+						/*Lettera Minuscola, Exception*/
+						throw new CasellaOccupataException();
+					}
+				}
+			}
+			throw new MossaIllegaleException();
+		}
+		/* Mossa Illegale Exception*/
+		throw new MossaIllegaleException();
+	}
+
+	public String getMosse(char colore,Casella da,Posizione b)
+	{
+		Pezzo p ;
+		/*Casella per ottenere i pezzi durante la mossa*/
+		Casella a=new Casella();
+		Cavallo c=new Cavallo(colore);
+		/*Stringa che ritorna*/
+		String arr="";
+		/*Posizione casella*/
+		String cDa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna());
+		/*Posizione dove mangia*/
+		String dM="";
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		//Scorrimento verso il basso +1+2 righe +2+1-1-2 colonne
+		for(int i=0;i<2;i++)
+		{
+			a.setRiga(a.getRiga()+1);
+			if(a.getRiga()>b.getRighe())
+				break;
+			if(i==0)
+			{
+				a.setColonna(a.getColonna()+2);
+				if(a.getColonna()>b.getColonne())
+				{
+					a.setColonna(a.getColonna()-2);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setColonna(a.getColonna()-2);
+				}
+				a.setColonna(a.getColonna()-2);
+				if(a.getColonna()<0)
+				{
+					a.setColonna(a.getColonna()+2);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setColonna(a.getColonna()+2);
+				}
+			}
+			if(i==1)
+			{
+				a.setColonna(a.getColonna()+1);
+				if(a.getColonna()>b.getColonne())
+				{
+					a.setColonna(a.getColonna()-1);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setColonna(a.getColonna()-1);
+				}
+				a.setColonna(a.getColonna()-1);
+				if(a.getColonna()<0)
+				{
+					a.setColonna(a.getColonna()+1);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setColonna(a.getColonna()+1);
+				}
+			}
+		}
+		//Verifica verso alto -1-2 righe +1+2-1-2 colonne
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		for(int i=0;i<2;i++)
+		{
+			a.setRiga(a.getRiga()-1);
+			if(a.getRiga()<0)
+				break;
+			if(i==0)
+			{
+				a.setColonna(a.getColonna()+2);
+				if(a.getColonna()>b.getColonne())
+				{
+					a.setColonna(a.getColonna()-2);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setColonna(a.getColonna()-2);
+				}
+				a.setColonna(a.getColonna()-2);
+				if(a.getColonna()<0)
+				{
+					a.setColonna(a.getColonna()+2);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setColonna(a.getColonna()+2);
+				}
+			}
+			if(i==1)
+			{
+				a.setColonna(a.getColonna()+1);
+				if(a.getColonna()>b.getColonne())
+				{
+					a.setColonna(a.getColonna()-1);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setColonna(a.getColonna()-1);
+				}
+				a.setColonna(a.getColonna()-1);
+				if(a.getColonna()<0)
+				{
+					a.setColonna(a.getColonna()+1);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setColonna(a.getColonna()+1);
+				}
+			}
+		}
+		//Verifica verso destra  +1+2 colonne +1+2-1-2 righe
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		for(int i=0;i<2;i++)
+		{
+			a.setColonna(a.getColonna()+1);
+			if(a.getColonna()>b.getColonne())
+				break;
+			if(i==0)
+			{
+				a.setRiga(a.getRiga()+2);
+				if(a.getRiga()>b.getRighe())
+				{
+					a.setRiga(a.getRiga()-2);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setRiga(a.getRiga()-2);
+				}
+				a.setRiga(a.getRiga()-2);
+				if(a.getRiga()<0)
+				{
+					a.setRiga(a.getRiga()+2);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setRiga(a.getRiga()+2);
+				}
+			}
+			if(i==1)
+			{
+				a.setRiga(a.getRiga()+1);
+				if(a.getRiga()>b.getRighe())
+				{
+					a.setRiga(a.getRiga()-1);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setRiga(a.getRiga()-1);
+				}
+				a.setRiga(a.getRiga()-1);
+				if(a.getRiga()<0)
+				{
+					a.setRiga(a.getRiga()+1);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setRiga(a.getRiga()+1);
+				}
+			}
+		}
+		//Verifica verso sinistra  +1+2 colonne +1+2-1-2 righe
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		for(int i=0;i<2;i++)
+		{
+			a.setColonna(a.getColonna()-1);
+			if(a.getColonna()<0)
+				break;
+			if(i==0)
+			{
+				a.setRiga(a.getRiga()+2);
+				if(a.getRiga()>b.getRighe())
+				{
+					a.setRiga(a.getRiga()-2);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setRiga(a.getRiga()-2);
+				}
+				a.setRiga(a.getRiga()-2);
+				if(a.getRiga()<0)
+				{
+					a.setRiga(a.getRiga()+2);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setRiga(a.getRiga()+2);
+				}
+			}
+			if(i==1)
+			{
+				a.setRiga(a.getRiga()+1);
+				if(a.getRiga()>b.getRighe())
+				{
+					a.setRiga(a.getRiga()-1);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setRiga(a.getRiga()-1);
+				}
+				a.setRiga(a.getRiga()-1);
+				if(a.getRiga()<0)
+				{
+					a.setRiga(a.getRiga()+1);
+				}else{
+					if(c.puoiMangiare(da, a, colore, b))
+					{
+						dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+						arr=arr+cDa+"x"+dM+" ";
+					}
+					a.setRiga(a.getRiga()+1);
+				}
+			}
+		}
+		return arr;
+	}
+	/**
+	 * Metodo puoiMangiare;
+	 * Verifica se il cavallo può mangiare quella casella.
+	 * 
+	 * @param Casella da,Casella a, char colore
+	 * @return boolean
+	 * @author manuel
+	 */
+	public boolean puoiMangiare(Casella da,Casella a,char colore,Posizione b)
+	{
+		if(Math.abs(da.getRiga()-a.getRiga())==1 && (Math.abs(da.getColonna()-a.getColonna())==2))
+		{
+			if(b.getPezzo(a)==null)
+				return true;
+			if(MaiusOMinuscola.Maius(colore))
+			{
+				if(MaiusOMinuscola.Maius(b.getColorePezzo(a)))
+					return false;
+				return true;
+			}else{
+				if(MaiusOMinuscola.Maius(b.getColorePezzo(a)))
+					return true;
+				return false;
+			}
+		}
+		if(Math.abs(da.getRiga()-a.getRiga())==2 && (Math.abs(da.getColonna()-a.getColonna())==1))
+		{
+			if(b.getPezzo(a)==null)
+				return true;
+			if(MaiusOMinuscola.Maius(colore))
+			{
+				if(MaiusOMinuscola.Maius(b.getColorePezzo(a)))
+					return false;
+				return true;
+			}else{
+				if(MaiusOMinuscola.Maius(b.getColorePezzo(a)))
+					return true;
+				return false;
+			}
+		}
+		return false;
+	}
+}
