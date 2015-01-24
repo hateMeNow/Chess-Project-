@@ -1,0 +1,240 @@
+package Utility;
+import java.io.*;
+import Scacchi.*;
+import ExceptionUtility.*;
+
+import java.util.*;
+
+public class SalvaOCarica {
+	
+	private final static String directorySalvataggio="Salvataggio_Caricamento";
+
+	
+
+	
+	/**
+	 * metodo salvaPartita;
+	 * Il seguente metodo salva una partita.
+	 * 
+	 * @param String nome, String[] posizione
+	 * @throws FileNotFoundException
+	 * @author manuel
+	 */
+	public void salvaPartita(String nome, String[] posizione,ArrayList<String> mosse, ArrayList<Character> presi ,int count ) throws FileNotFoundException
+	{
+		if(SalvaOCarica.setDirectory())
+		{
+			File file=new File(directorySalvataggio,nome);
+			try
+			{
+				//PrintWriter
+				PrintWriter out=new PrintWriter(file);
+				for(int i=0;i<posizione.length;i++)
+				{
+					out.println(posizione[i]);
+				}
+				if(mosse.size()==0 && presi.size()==0)
+				{
+					out.close();
+				}else{
+					out.println("mosse");
+					for(int aMosse=0;aMosse<mosse.size();aMosse++)
+						out.println(mosse.get(aMosse));
+					out.println("Pezzi");
+					for(int aPresi=0;aPresi<presi.size();aPresi++)
+						out.println(presi.get(aPresi));
+					out.println("Count");
+					out.println(count);
+					out.close();
+				}
+			
+			}catch(FileNotFoundException e)
+			{
+				throw new FileNotFoundException();
+			}
+		}else{
+			throw new FileNotFoundException();
+		}
+	}
+	
+	
+	/**
+	 * metodo caricaPartita;
+	 * Il seguente metodo verifica il file e carica una partita.
+	 * 
+	 * @param String nome
+	 * @return String[]
+	 * @throws FileNotFoundException CarucamentoException
+	 * @author manuel
+	 */
+	public String[] caricaPartita(String nome) throws FileNotFoundException, CaricamentoException
+	{
+		ArrayList<String> array=new ArrayList<String>();
+		String scacchiera;
+		//Memorizzo il file nell arraylist.
+		try
+		{
+			File dir=new File(directorySalvataggio);
+			if(dir.isDirectory())
+			{
+				File file=new File(directorySalvataggio,nome);
+				//Costruisco lo scanner
+				Scanner io=new Scanner(file);
+				//finchè esiste un altra riga
+				while(io.hasNext())
+				{
+					scacchiera=io.next();
+					if(scacchiera.equals("mosse"))
+						break;
+					array.add(scacchiera);
+				}
+				//Chiudo il file 
+				io.close();
+			}else{
+				throw new CaricamentoException();
+			}
+		}catch(FileNotFoundException e)
+		{
+			throw new FileNotFoundException();
+			
+		}
+		//Memorizzo il tutto nell array di Stringhe
+		String[] posizione=new String[array.size()];
+		//Iterator
+		Iterator lista=array.iterator();
+		// contatore
+		int count=0;
+		//Itero finchè ci sono elementi nella lista
+		while(lista.hasNext())
+		{
+			//Salvo
+			posizione[count]=(String)lista.next();
+			//Aggiorno il contatore
+			count++;
+		}
+		return posizione;
+	}
+	
+	public ArrayList<String> caricaMosse(String nome) throws FileNotFoundException
+	{
+		ArrayList<String> mosse=new ArrayList<String>();
+		String str;
+		boolean trov=false;
+		try
+		{
+			File file=new File(directorySalvataggio,nome);
+			Scanner io=new Scanner(file);
+			while(io.hasNext())
+			{
+				str=io.next();
+				if(str.equals("mosse"))
+				{
+					trov=true;
+					continue;
+				}
+				if(str.equals("Pezzi"))
+					break;
+				if(trov)
+					mosse.add(str);	
+			}
+			io.close();
+			return mosse;
+		}
+		catch(FileNotFoundException e)
+		{
+			throw new FileNotFoundException();
+		}
+	}
+	
+	public ArrayList<Character> caricaPezzi(String nome) throws FileNotFoundException
+	{
+		ArrayList<Character> pezzi=new ArrayList<Character>();
+		String str;
+		boolean trov=false;
+		try
+		{
+			File file=new File(directorySalvataggio,nome);
+			Scanner io=new Scanner(file);
+			while(io.hasNext())
+			{
+				str=io.next();
+				if(str.equals("Pezzi"))
+				{
+					trov=true;
+					continue;
+				}
+				if(trov)
+					pezzi.add(str.charAt(0));	
+			}
+			io.close();
+			return pezzi;
+		}
+		catch(FileNotFoundException e)
+		{
+			throw new FileNotFoundException();
+		}
+	}
+	
+	public int getCount(String nome) throws FileNotFoundException
+	{
+		String str;
+		boolean trov=false;
+		int count=0;
+		try
+		{
+			File file=new File(directorySalvataggio,nome);
+			Scanner io=new Scanner(file);
+			while(io.hasNext())
+			{
+				str=io.next();
+				if(str.equals("Count"))
+				{
+					trov=true;
+					continue;
+				}
+				if(trov)
+				{
+					count=Integer.valueOf(str);
+					
+				}
+			}
+			io.close();
+			return count;
+		}
+		catch(FileNotFoundException e)
+		{
+			throw new FileNotFoundException();
+		}
+	}
+	
+	
+	/**
+	 * metodo setDirectory;
+	 * Metodo che verifica l'esistenza della directory di salvataggio
+	 * caricamento. Se non presente la crea.
+	 * 
+	 * @param void
+	 * @return boolean
+	 * @author manuel
+	 */
+	public static boolean setDirectory()
+	{
+		File dir=new File(directorySalvataggio);
+		if(dir.isDirectory())
+		{
+			//Directory presente
+			return true;
+		}else{
+			boolean success = (new File(directorySalvataggio)).mkdir();
+			if(success)
+			{
+				//Direcroty creata
+				return true;
+			}else{
+				//impossibile creare la directory
+				return false;
+			}
+		}
+		
+	}
+}
