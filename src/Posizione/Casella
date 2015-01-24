@@ -1,0 +1,61 @@
+package Posizione;
+/**
+ * Classe Casella
+ * Variabili:2
+ * Metodi:2 
+ * @author manuel
+ *
+ */
+public class Casella {
+
+	/**
+	 * Variabili della classe, naturalmente privati
+	 */
+	private int riga;
+	private int colonna;
+	
+	/**
+	 * Metodo che ritorna la riga
+	 * @return riga
+	 */
+	public int getRiga()
+	{
+		return riga;
+	}
+	
+	/**
+	 * Metodo publico che ritorna la colonna
+	 * @return colonna
+	 */
+	public int getColonna()
+	{
+		return colonna;
+	}
+	
+	public void incrementaColonna()
+	{
+		this.colonna=colonna+1;
+	}
+	
+	public void decrementaColonna()
+	{
+		this.colonna=colonna-1;
+	}
+	public void incrementaRiga()
+	{
+		this.riga=riga+1;
+	}
+	
+	public void decrementaRiga()
+	{
+		this.riga=riga-1;
+	}
+	public void setRiga(int i)
+	{
+		this.riga=i;
+	}
+	public void setColonna(int i)
+	{
+		this.colonna=i;
+	}
+}
