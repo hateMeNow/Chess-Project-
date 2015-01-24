@@ -1,0 +1,5 @@
+package ExceptionMosse;
+
+public class CasellaVuotaException extends Exception {
+
+}
