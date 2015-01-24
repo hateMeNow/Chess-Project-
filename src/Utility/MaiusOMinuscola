@@ -1,0 +1,138 @@
+package Utility;
+import Posizione.*;
+import Pezzi.*;
+/*
+ * Classe MaiusOMinuscola;
+ * Utile per verificare se la lettera data è maiuscola o minuscola
+ */
+ 
+public class MaiusOMinuscola {
+	
+	/**
+	 * Metodo Maius;
+	 * Metodo che verifica se la lettera data in input è maiusc o minuscola
+	 * @param char car
+	 * @return boolean
+	 * @author manuel
+	 */
+	public static boolean Maius(char car)
+	{
+		if((car>='A') && (car<='Z'))
+		{
+			/*Lettera Maiuscola,Bianco*/
+			return true;
+		}else{
+			/*Lettera minuscola,Nero*/
+			return false;
+		}
+	}
+	/**
+	 * Metodo getPezzo;
+	 * ritorna il pezzo;
+	 * 
+	 * @param String mossa Posizione  b
+	 * @return Pezzo
+	 */
+	public static Pezzo getPezzo(String mossa,Posizione b)
+	{
+		Casella da=new Casella();
+		int riga=0;
+		int colonna=0;
+		riga=Character.getNumericValue(mossa.charAt(3));
+		colonna=(Trasform.getInteger(mossa.charAt(4)));
+		da.setRiga(riga);
+		da.setColonna(colonna);
+		Pezzo p=b.getPezzo(da);
+		switch(p.getColore())
+		{
+		case 'a' :
+			Alfiere a=new Alfiere('a');
+			return a;
+		case 'A' :
+			Alfiere a1=new Alfiere('A');
+			return a1;
+		case 't' :
+			Torre t=new Torre('t');
+			return t;
+		case 'T' :
+			Torre t1=new Torre('T');
+			return t1;
+		case 'p' :
+			Pedone pe=new Pedone('p');
+			return pe;
+		case 'P' :
+			Pedone pe1=new Pedone('P');
+			return pe1;
+		case 'r' :
+			Re r=new Re('r');
+			return r;
+		case 'R' :
+			Re r1=new Re('R');
+			return r1;
+		case 'd' :
+			Donna d=new Donna('d');
+			return d;
+		case 'D' :
+			Donna d1=new Donna('D');
+			return d1;
+		case 'c' :
+			Cavallo c=new Cavallo('c');
+			return c;
+		case 'C' :
+			Cavallo c1=new Cavallo('C');
+			return c1;
+		}
+		throw new IllegalArgumentException();
+	}
+	/**
+	 * metodo getPezzoPreso;
+	 * ritorna il pezzo mangiato;
+	 * 
+	 * @param char Colore
+	 * @return Pezzo
+	 */
+	public static Pezzo getPezzoPreso(char Colore)
+	{
+		
+		switch(Colore)
+		{
+		case 'a' :
+			Alfiere a=new Alfiere('a');
+			return a;
+		case 'A' :
+			Alfiere a1=new Alfiere('A');
+			return a1;
+		case 't' :
+			Torre t=new Torre('t');
+			return t;
+		case 'T' :
+			Torre t1=new Torre('T');
+			return t1;
+		case 'p' :
+			Pedone pe=new Pedone('p');
+			return pe;
+		case 'P' :
+			Pedone pe1=new Pedone('P');
+			return pe1;
+		case 'r' :
+			Re r=new Re('r');
+			return r;
+		case 'R' :
+			Re r1=new Re('R');
+			return r1;
+		case 'd' :
+			Donna d=new Donna('d');
+			return d;
+		case 'D' :
+			Donna d1=new Donna('D');
+			return d1;
+		case 'c' :
+			Cavallo c=new Cavallo('c');
+			return c;
+		case 'C' :
+			Cavallo c1=new Cavallo('C');
+			return c1;
+		}
+		throw new IllegalArgumentException();
+	}
+}
