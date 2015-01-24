@@ -1,0 +1,388 @@
+package Pezzi;
+import ExceptionPartita.ReSottoScaccoException;
+import ExceptionPezzi.AlfiereException;
+import ExceptionPezzi.DonnaException;
+import ExceptionPezzi.PedoneException;
+import ExceptionPezzi.PedoneNonMangiaException;
+import ExceptionPezzi.TorreException;
+import ExceptionMosse.*;
+import Posizione.*;
+import Utility.MaiusOMinuscola;
+import Utility.Trasform;
+
+import java.math.*;
+
+/**
+ * Classe Pedone;
+ * Movimento: di una casella, di due se in posizione iniziale
+ * Exception: Soltanto nella posizione iniziale si può muovere in due posizioni
+ * @author manuel
+ *
+ */
+public class Pedone implements Pezzo  {
+	/**
+	 * Variabile per definire il colore del pezzo;
+	 */
+	private char colore;
+	/**
+	 * Costruttore per pedone;
+	 * 
+	 * @param colore
+	 */
+	public Pedone(char colore)
+	{
+		this.colore=colore;
+	}
+	/**
+	 * Metodo che ritorna il colore del pezzo; 
+	 * @retur char
+	 */
+	public char getColore()
+	{
+		return colore;
+	}
+	/**
+	 * Metodo puoiMuovere;
+	 * Questo metodo verifica il movimento del pedone
+	 * Nel caso in cui il pedone mangia, richiama un metodo privato
+	 * @param Casella da,Casella a, Posizione b
+	 * @return boolean
+	 * @throws PedoneException
+	 * @author manuel
+	 */
+	public boolean puoiMuovere(Casella da, Casella a,Posizione b) throws PedoneException,CasellaOccupataException,CasellaVuotaException
+	{
+		/*Verifico se il pedone è nero o bianco*/
+		char colore=b.getColorePezzo(da);
+		if(colore=='p')
+		{
+			/*Pedone nero,verifico se si tratta di un movimento*/
+			if(da.getRiga()==1)
+			{
+				/*Si trova nella prima posizione,verifico se i movimenti sono 1 o 2*/
+				if(((Math.abs((da.getRiga()-a.getRiga()))==1) || (Math.abs((da.getRiga()-a.getRiga()))==2 )) && ((da.getColonna()-a.getColonna())==0))
+				{
+					return true;
+				}else{
+					if(((a.getRiga()-da.getRiga())==1) && ( ((da.getColonna()-a.getColonna()==1)) || ((da.getColonna()-a.getColonna()==-1))  ) )
+					{
+						/*Il pedone Mangia*/
+						Pedone p=(Pedone)b.getPezzo(da);
+						try
+						{
+							if(p.mangia(da, a, b))
+							{
+									return true;
+							}
+						}catch(PedoneNonMangiaException e)
+						{
+							/*Exception*/
+							throw new PedoneException();
+						}
+						catch(CasellaOccupataException e)
+						{
+							throw new CasellaOccupataException();
+						}
+					}else{
+						throw new PedoneException();
+					}				
+				}
+			}else{
+				/*Movimento n posizione,verifico il movimento*/
+				/*Il pedone si sposta*/
+				if(((da.getRiga()-a.getRiga())==-1) && ((da.getColonna()-a.getColonna())==0)) 
+				{
+					/*Verifico che non ci sono pezzi nel tragitto*/
+					if(b.getPezzo(da)==null)
+					{
+						return true;
+					}else{
+						/*Pezzo presente*/
+						throw new PedoneException();
+					}
+				}
+				/*Verifico se mangia*/
+				if(((a.getRiga()-da.getRiga())==1) && ( ((da.getColonna()-a.getColonna()==1)) || ((da.getColonna()-a.getColonna()==-1))  ) )
+				{
+					/*Il pedone Mangia*/
+					Pedone p=(Pedone)b.getPezzo(da);
+					try
+					{
+						if(p.mangia(da, a, b))
+						{
+								return true;
+						}
+					}catch(PedoneNonMangiaException e)
+					{
+						/*Exception*/
+						throw new PedoneException();
+					}
+					catch(CasellaOccupataException e)
+					{
+						throw new CasellaOccupataException();
+					}
+				}
+			}
+		}else{
+			/*Pedone Bianco*/
+			/*Prima casella*/
+			if(da.getRiga()==6)
+			{
+				/*Prima posizione*/
+				if((((da.getRiga()-a.getRiga())==1) || ((da.getRiga()-a.getRiga())==2)) && ((da.getColonna()-da.getColonna())==0) )
+				{
+					return true;
+				}else{
+					if(((da.getRiga()-a.getRiga())==1) && ((da.getColonna()-a.getColonna())!=0) )
+					{
+						Pedone p=(Pedone)b.getPezzo(da);
+						try
+						{
+							if(p.mangia(da, a, b))
+							{
+									return true;
+							}
+						}catch(PedoneNonMangiaException e)
+						{
+							/*Exception*/
+							throw new CasellaVuotaException();
+						}
+						catch(CasellaOccupataException e)
+						{
+							throw new CasellaOccupataException();
+						}
+					}else{
+						throw new PedoneException();
+					}
+				}
+			}
+			/*Cammino diverso*/
+			if(((da.getRiga()-a.getRiga())==1) && ((da.getColonna()-a.getColonna())==0) )
+			{
+				/*Verifico se non sono presenti pezzi nel tragitto*/
+				Pezzo p=b.getPezzo(a);
+				if(p!=null)
+				{
+					/*MOSSA ILLEGALE*/
+					throw new PedoneException();
+				}
+				return true;
+			}
+			/*Verifichiamo se il pedone mangia*/
+			if(((da.getRiga()-a.getRiga())==1) && ((da.getColonna()-a.getColonna())!=0) )
+			{
+				Pedone p=(Pedone)b.getPezzo(da);
+				try
+				{
+					if(p.mangia(da, a, b))
+					{
+							return true;
+					}
+				}catch(PedoneNonMangiaException e)
+				{
+					/*Exception*/
+					throw new CasellaVuotaException();
+				}
+				catch(CasellaOccupataException e)
+				{
+					throw new CasellaOccupataException();
+				}
+			}else{
+				throw new PedoneException();
+			}
+		}	
+		/*Mossa non valida*/
+		return false;
+	}
+	/**
+	 * Metodo privato mangia;
+	 * Verifica il colore del pezzo in movimento.
+	 * Verifica infine se il pezzo che si cerca di catturare è di colore opposto.
+	 * 
+	 * @param Casella da,Casella a, Posizione b
+	 * @return boolean
+	 * @throws PedoneNonMangiaException CasellaVuotaException CasellaOccupataException
+	 * @author manuel
+	 */
+	private boolean mangia(Casella da,Casella a,Posizione b) throws PedoneNonMangiaException, CasellaOccupataException, CasellaVuotaException
+	{
+		
+		/*Prendo il pezzo nella posizione scelta*/
+		char c=b.getColorePezzo(da);
+		/*Prendo il pezzo che devo mangiare*/
+		Pezzo p=b.getPezzo(a);
+		if(p==null)
+		{
+			/* Casella Vuota eccezione*/
+			throw new PedoneNonMangiaException();
+		}else{
+			
+			if(c=='p')
+			{
+				/*Se il pedone è nero,mangio il bianco*/
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					return true;
+				}else{
+					throw new CasellaOccupataException();
+				}
+			}else{
+				/*Se il pedone è bianco, mangio il nero*/
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					throw new CasellaOccupataException();
+				}else{
+					return true;
+				}
+			}
+		}
+	}
+	/**
+	 * Metodo getMosse;
+	 * Metodo che ritorna le mosse del pedone;
+	 * 	 
+	 * @param char colore,Casella da,Posizione b
+	 * @return String[]
+	 * @author manuel
+	 */
+	public String getMosse(char colore,Casella da,Posizione b)
+	{
+		Pezzo p;
+		/*Stringa che ritorna*/
+		String arr="";
+		/*Posizione casella*/
+		String cDa=Integer.toString(da.getRiga())+(Trasform.getCharacter(da.getColonna()));
+		/*Posizione dove mangia*/
+		String dM="";
+		/*Casella Da*/
+		Casella a=da;
+		
+		if(colore=='p')
+		{
+			/*Colore Nero*/
+			/*Verifico se la posizione è la prima*/
+			if(da.getColonna()==0)
+			{
+				/*Mangia solo +1 +1*/
+				dM=Integer.toString(da.getRiga()+1)+(Trasform.getCharacter(da.getColonna()+1));
+				arr=arr+cDa+"x"+dM+" ";
+			}
+			if(da.getColonna()==7)
+			{
+				/*Mangia solo +1 -1*/
+				dM=Integer.toString(da.getRiga()+1)+(Trasform.getCharacter(da.getColonna()-1));
+				arr=arr+cDa+"x"+dM+" ";
+			}
+			if(da.getColonna()!=0 && da.getColonna()!=7)
+			{
+				/*Mangia sia +1 -1 +1 +1 */
+				dM=Integer.toString(da.getRiga()+1)+(Trasform.getCharacter(da.getColonna()+1));
+				arr=arr+cDa+"x"+dM+" ";				
+				dM=Integer.toString(da.getRiga()+1)+(Trasform.getCharacter(da.getColonna()-1));
+				arr=arr+cDa+"x"+dM+" ";
+			}			
+			if(da.getRiga()==1)
+			{
+				/*Il movimento è di due caselle o una*/
+				for(int i=0;i<2;i++)
+				{
+					a.incrementaRiga();
+					p=b.getPezzo(a);
+					if(p==null)
+					{
+						dM=Integer.toString(a.getRiga()+i)+(Trasform.getCharacter(da.getColonna()));
+						arr=arr+cDa+"-"+dM+" ";
+					}
+				}
+			}else{
+				/*Movimento singolo*/
+				p=b.getPezzo(a);
+				if(p==null)
+				{
+					dM=Integer.toString(a.getRiga()+1)+(Trasform.getCharacter(da.getColonna()));
+					arr=arr+cDa+"-"+dM+" ";
+				}
+			}
+			
+		}else{
+			/*Colore Bianco*/
+			/*Verifico se la posizione è la prima*/
+			if(da.getColonna()==0)
+			{
+				/*Mangia solo -1 +1*/
+				dM=Integer.toString(da.getRiga()-1)+(Trasform.getCharacter(da.getColonna()+1));
+				arr=arr+cDa+"x"+dM+" ";
+			}
+			if(da.getColonna()==7)
+			{
+				/*Mangia solo -1 -1*/
+				dM=Integer.toString(da.getRiga()-1)+(Trasform.getCharacter(da.getColonna()-1));
+				arr=arr+cDa+"x"+dM+" ";
+			}
+			if(da.getColonna()!=0 && da.getColonna()!=7)
+			{
+				/*Mangia sia -1 -1 -1 +1 */
+				dM=Integer.toString(da.getRiga()-1)+(Trasform.getCharacter(da.getColonna()+1));
+				arr=arr+cDa+"x"+dM+" ";				
+				dM=Integer.toString(da.getRiga()-1)+(Trasform.getCharacter(da.getColonna()-1));
+				arr=arr+cDa+"x"+dM+" ";
+			}			
+			if(da.getRiga()==6)
+			{
+				/*Il movimento è di due caselle o una*/
+				
+				for(int i=0;i<2;i++)
+				{
+					a.decrementaRiga();
+					p=b.getPezzo(a);
+					if(p==null)
+					{
+						dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(da.getColonna()));
+						arr=arr+cDa+"-"+dM+" ";
+					}
+				}
+			}else{
+				/*Movimento singolo*/
+				p=b.getPezzo(a);
+				if(p==null)
+				{
+					dM=Integer.toString(a.getRiga()+1)+(Trasform.getCharacter(da.getColonna()));
+					arr=arr+cDa+"-"+dM+" ";
+				}
+			}
+		
+		}
+		return arr;
+	}
+	/**
+	 * Metodo puoiMangiare;
+	 * Principalmente serve per verificare il movimento del re.
+	 * 
+	 * @param Casella da, Casella a, char Colore
+	 * @return boolean
+	 * @author manuel
+	 */
+	public boolean puoiMangiare(Casella da,Casella a,char colore,Posizione b)
+	{
+		Pezzo p;
+		if(MaiusOMinuscola.Maius(colore))
+		{
+			/*Bianco*/
+			if((da.getRiga()-a.getRiga()==1) && (da.getColonna()-a.getColonna()== 1 || a.getColonna()-da.getColonna()==1))
+			{
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			/*Nero*/
+			if((da.getRiga()-a.getRiga()==-1) && (da.getColonna()-a.getColonna()== 1 || a.getColonna()-da.getColonna()==1))
+			{
+				return true;
+			}else{
+				return false;
+			}
+		}
+	}
+	
+}
