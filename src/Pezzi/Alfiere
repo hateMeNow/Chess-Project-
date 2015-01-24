@@ -1,0 +1,603 @@
+package Pezzi;
+import java.math.*;
+import ExceptionMosse.*;
+import ExceptionPezzi.AlfiereException;
+import Posizione.*;
+import Utility.MaiusOMinuscola;
+import Utility.Trasform;
+
+/**
+ * Classe Alfiere;
+ * Movimento: Si muove in diagonale per tutta la scacchiera
+ * Exception: Si arresta quando un elemento ne ostacola il movimento
+ * 		 * Il movimento dell alfiere è il seguente:
+		 * x,y
+		 * x+1,y+1
+		 * x+1,y-1
+		 * x-1,y-1
+		 * x-1,y+1
+		 *  Il valore assoluto di tot rige,
+		 * coincide con il valore assoluto di tot colonne.
+		 * 
+ * @author manuel
+ *
+ */
+public class Alfiere implements Pezzo{
+	/**
+	 * Variabile per definire il colore del pezzo;
+	 */
+	private char colore;
+	/**
+	 * Costruttore per Alfiere;
+	 * 
+	 * @param colore
+	 */
+	public Alfiere(char colore)
+	{
+		this.colore=colore;
+	}
+	/**
+	 * Metodo che ritorna il colore del pezzo; 
+	 * @retur char
+	 */
+	public char getColore()
+	{
+		return colore;
+	}
+	/**
+	 * Metodo puoiMuovere;
+	 * Il movimento dell'alfiere coincide con il valore assoluto delle righe
+	 * con le colonne
+	 * @param Casella da,Casella a, Posizione b
+	 * @return boolean
+	 * @throws AlfiereException
+	 * @author manuel
+	 */
+	public boolean puoiMuovere(Casella da,Casella a,Posizione b) throws AlfiereException,CasellaOccupataException,MossaIllegaleException
+	{
+		Pezzo pez;
+		Pezzo pez1;
+		if((Math.abs(da.getRiga() - a.getRiga()))==(Math.abs(da.getColonna()-a.getColonna())))
+		{
+			pez=b.getPezzo(a);
+			if(pez==null)
+			{
+				/* La casella di arrivo è vuota,verifico se presenti pezzi*/
+				try
+				{
+					if(Alfiere.searchPezzi(da, a, b))
+						return true;
+				}catch(CasellaOccupataException e)
+				{
+					throw new CasellaOccupataException();
+				}
+				
+			}else{
+				/*Verifico il colore dell'alfiere*/
+				pez1=b.getPezzo(da);
+				if((pez1.getColore()=='A'))
+				{
+					
+					/* Alfiere Bianco*/
+					if(MaiusOMinuscola.Maius(pez.getColore()))
+					{
+							throw new AlfiereException();
+					}else
+					{
+						try
+						{
+							
+							if(Alfiere.searchPezzi(da, a, b))
+								return true;
+						}catch(CasellaOccupataException e)
+						{
+							throw new CasellaOccupataException();
+						}
+					}
+					
+				}else{
+					/*Alfiere Nero*/
+					if(MaiusOMinuscola.Maius(pez.getColore()))
+					{
+						try
+						{
+							if(Alfiere.searchPezzi(da, a, b))
+								return true;
+						}catch(CasellaOccupataException e)
+						{
+							throw new CasellaOccupataException();
+						}
+					}else{
+						throw new AlfiereException();
+					}
+				}
+			}
+		}else{
+			throw new MossaIllegaleException();
+		}
+		return false;
+	}
+	/**
+	 * Metodo searchPezzi;
+	 * Verifica che nel tragitto non sono presenti pezzi;
+	 * altrimenti lancia un eccezione;
+	 * 
+	 * @param Casella da,Casella a,Posizione b
+	 * @author manuel
+	 * @throws CasellaOccupataException
+	 * @return boolean
+	 */
+	public static boolean searchPezzi(Casella da,Casella a,Posizione b) throws CasellaOccupataException
+	{
+		int righeA=a.getRiga();
+		int colonneA=a.getColonna();
+		int mov=Math.abs(da.getRiga()-(a.getRiga()));
+		Casella aDa=new Casella();
+		Casella A=new Casella();
+		Pezzo pez;
+		if(da.getColonna()>a.getColonna())
+		{
+			/*Verifico il movimento*/
+			if(da.getRiga()>a.getRiga())
+			{
+				/*Decremento Colonne e Decremento Righe*/
+				for(int i=0;i<mov;i++)
+				{
+					
+					da.decrementaColonna();
+					da.decrementaRiga();
+					
+					if(righeA==da.getRiga() || colonneA==da.getColonna())
+					{
+					
+						break;
+					}
+					//Controllo per non uscire
+					if(da.getRiga()==-1 || da.getRiga()==8 || da.getColonna()==-1 || da.getColonna()==8)
+					{
+						break;
+					}
+					
+					pez=b.getPezzo(da);
+					
+					if(pez!=null)
+						throw new CasellaOccupataException();
+				}
+				
+				return true;
+			}else{
+				/*Decremento Colonne e incremento Righe */
+				for(int i=0;i<mov;i++)
+				{
+					da.decrementaColonna();
+					da.incrementaRiga();
+					if(righeA==da.getRiga() || colonneA==da.getColonna())
+					{
+						break;
+					}
+					if(da.getRiga()==-1 || da.getRiga()==8 || da.getColonna()==-1 || da.getColonna()==8)
+					{
+						break;
+					}
+					pez=b.getPezzo(da);
+					if(pez!=null)
+						throw new CasellaOccupataException();
+				}
+				
+				return true;				
+			}
+		}else{
+			/*Verifico il movimento*/
+			if(da.getRiga()>a.getRiga())
+			{
+				/* Incremento Colonne Decremento Riga*/
+				for(int i=0;i<mov;i++)
+				{
+					
+					da.incrementaColonna();
+					da.decrementaRiga();
+					if(righeA==da.getRiga() || colonneA==da.getColonna())
+					{
+						break;
+					}
+					if(da.getRiga()==-1 || da.getRiga()==8 || da.getColonna()==-1 || da.getColonna()==8)
+					{
+						break;
+					}
+					pez=b.getPezzo(da);
+					if(pez!=null)
+						throw new CasellaOccupataException();
+				}
+				
+				return true;
+			}else{
+				/* Incremento Colonne Incremento Riga */
+				for(int i=0;i<mov;i++)
+				{
+					da.incrementaColonna();
+					da.incrementaRiga();
+					if(righeA==da.getRiga() || colonneA==da.getColonna())
+					{
+						break;
+					}
+					if(da.getRiga()==-1 || da.getRiga()==8 || da.getColonna()==-1 || da.getColonna()==8)
+					{
+						break;
+					}
+					pez=b.getPezzo(da);
+					if(pez!=null)
+						throw new CasellaOccupataException();
+				}
+				
+				return true;
+			}
+		}
+	}
+	/**
+	 * Metodo getMosse;
+	 * Ritorna tutte le mosse possibili dell alfiere.
+	 * Si noti che ogni casella di arrivo, è una possibile presa verso il pezzo avversario.
+	 * 
+	 * @param char Colore, Casella da, Posizione b,CasellaOccupataException
+	 * @return arr
+	 * @author manuel 
+	 */
+	public static String getMosseA(char colore,Casella da,Posizione b)
+	{
+		Pezzo p ;
+		/*Casella per ottenere i pezzi durante la mossa*/
+		Casella a=new Casella();
+		Casella caDa=new Casella();
+		/*Stringa che ritorna*/
+		String arr="";
+		/*Posizione casella*/
+		String cDa=Integer.toString(da.getRiga())+(Trasform.getCharacter(da.getColonna()));
+		/*Posizione dove mangia*/
+		String dM="";
+		/*Scorro tutte le posizioni: decremento colonna e riga*/
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		caDa.setRiga(da.getRiga());
+		caDa.setColonna(da.getColonna());
+		for(int i=da.getRiga();i>0;i--)
+		{
+			a.decrementaColonna();
+			a.decrementaRiga();
+			if(a.getRiga()<0 || a.getColonna()<0)
+				break;
+			p=b.getPezzo(a);
+			if(p==null)
+			{
+				try
+				{
+					
+					if(Alfiere.searchPezzi(caDa, a, b))
+					{
+						dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+						arr=arr+cDa+"x"+dM+" ";
+						caDa.setRiga(da.getRiga());
+						caDa.setColonna(da.getColonna());
+						continue;
+					}
+					
+				}catch(CasellaOccupataException e)
+				{
+					
+					break;
+				}
+			}
+			if(colore=='a')
+			{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					try
+					{
+						if(Alfiere.searchPezzi(caDa, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+							arr=arr+cDa+"x"+dM+" ";
+							caDa.setRiga(da.getRiga());
+							caDa.setColonna(da.getColonna());
+							continue;
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+				}else{
+					break;
+				}
+			}else{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					break;
+				}else{
+					try
+					{
+						if(Alfiere.searchPezzi(caDa, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+							arr=arr+cDa+"x"+dM+" ";
+							caDa.setRiga(da.getRiga());
+							caDa.setColonna(da.getColonna());
+							continue;
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+				}
+			}
+		}
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		caDa.setRiga(da.getRiga());
+		caDa.setColonna(da.getColonna());
+		
+		/*Movimento verso destra, incremento colonne,incremento righe*/
+		for(int i=da.getRiga();i<b.getColonne();i++)
+		{
+			a.incrementaColonna();
+			a.incrementaRiga();
+			if(a.getColonna()>b.getColonne() || a.getRiga()>b.getRighe())
+				break;
+			p=b.getPezzo(a);
+			if(p==null)
+			{
+				try
+				{
+					if(Alfiere.searchPezzi(caDa, a, b))
+					{
+						caDa.setRiga(da.getRiga());
+						caDa.setColonna(da.getColonna());
+						dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+						arr=arr+cDa+"x"+dM+" ";
+						continue;
+					}
+				}catch(CasellaOccupataException e)
+				{
+					break;
+				}
+			}
+			if(colore=='a')
+			{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					try
+					{
+						if(Alfiere.searchPezzi(caDa, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+							arr=arr+cDa+"x"+dM+" ";
+							caDa.setRiga(da.getRiga());
+							caDa.setColonna(da.getColonna());
+							continue;
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+				}else{
+					break;
+				}
+			}else{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					break;
+				}else{
+					try
+					{
+						if(Alfiere.searchPezzi(caDa, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+							arr=arr+cDa+"x"+dM+" ";
+							caDa.setRiga(da.getRiga());
+							caDa.setColonna(da.getColonna());
+							continue;
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}						
+				}
+			}	
+		}
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		caDa.setRiga(da.getRiga());
+		caDa.setColonna(da.getColonna());
+		/*Movimento verso il basso,decremento colonne,incremento righe*/
+		for(int i=da.getColonna();i>0;i--)
+		{
+			a.decrementaColonna();
+			a.incrementaRiga();
+			if(a.getRiga()>b.getRighe() || a.getColonna()<0)
+				/*Verifico se non sono nel limite della matrice*/
+				break;
+			p=b.getPezzo(a);
+			if(p==null)
+			{
+				try
+				{
+					if(Alfiere.searchPezzi(caDa, a, b))
+					{
+						dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+						arr=arr+cDa+"x"+dM+" ";
+						caDa.setRiga(da.getRiga());
+						caDa.setColonna(da.getColonna());
+						continue;
+					}
+				}catch(CasellaOccupataException e)
+				{
+					break;
+				}
+			}
+			if(colore=='a')
+			{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					try
+					{
+						if(Alfiere.searchPezzi(caDa, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Integer.toString(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";
+							caDa.setRiga(da.getRiga());
+							caDa.setColonna(da.getColonna());
+							continue;
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+				}else{
+					break;
+				}
+			}else{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					break;
+				}else{
+					try
+					{
+						if(Alfiere.searchPezzi(caDa, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+Integer.toString(a.getColonna());
+							arr=arr+cDa+"x"+dM+" ";
+							caDa.setRiga(da.getRiga());
+							caDa.setColonna(da.getColonna());
+							continue;
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}						
+				}
+			}	
+		}
+		a.setRiga(da.getRiga());
+		a.setColonna(da.getColonna());
+		caDa.setRiga(da.getRiga());
+		caDa.setColonna(da.getColonna());
+		/*Movimento verso destra, incremento colonne,decremento righe*/
+		for(int i=da.getRiga();i>0;i--)
+		{
+			
+			a.incrementaColonna();
+			a.decrementaRiga();
+			if(a.getRiga()<0 || a.getColonna()>b.getColonne())
+			{	/*Verifico se non sono nel limite della matrice*/
+				break;
+			}
+			p=b.getPezzo(a);
+			if(p==null)
+			{
+				try
+				{
+					if(Alfiere.searchPezzi(caDa, a, b))
+					{
+						dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+						arr=arr+cDa+"x"+dM+" ";
+						caDa.setRiga(da.getRiga());
+						caDa.setColonna(da.getColonna());
+						continue;
+					}
+				}catch(CasellaOccupataException e)
+				{
+					break;
+				}
+			}
+			if(colore=='a')
+			{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					try
+					{
+						if(Alfiere.searchPezzi(caDa, a, b))
+						{
+							dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+							arr=arr+cDa+"x"+dM+" ";
+							caDa.setRiga(da.getRiga());
+							caDa.setColonna(da.getColonna());
+							continue;
+						}
+					}catch(CasellaOccupataException e)
+					{
+						break;
+					}
+				}else{
+					break;
+				}
+			}else{
+				if(MaiusOMinuscola.Maius(p.getColore()))
+				{
+					break;
+				}else{
+						try
+						{
+							if(Alfiere.searchPezzi(caDa, a, b))
+							{
+								dM=Integer.toString(a.getRiga())+(Trasform.getCharacter(a.getColonna()));
+								arr=arr+cDa+"x"+dM+" ";
+								caDa.setRiga(da.getRiga());
+								caDa.setColonna(da.getColonna());
+								continue;
+							}
+						}catch(CasellaOccupataException e)
+						{
+							break;
+						}					
+				}
+			}	
+		}
+		return arr;	
+	}
+	/**
+	 * Metodo che richiama getMosseA,A sta per alfiere.
+	 * @throws 
+	 */
+	public String getMosse(char colore,Casella da,Posizione b)
+	{
+		String mosse;
+		mosse=Alfiere.getMosseA(colore, da, b);
+		return mosse;
+	}
+	/**
+	 * Metodo puoiMangiare;
+	 * verifica se il pezzo può mangiare quella casella
+	 * 
+	 * @param Casella da, Casella a, char colore, Posizione b
+	 * @return boolean
+	 * @author manuel
+	 */
+	public boolean puoiMangiare(Casella da,Casella a,char colore,Posizione b )
+	{
+		if(Alfiere.puoiMangiareA(da, a, b))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * Metodo puoiMangiareA
+	 * Utile per la classe Donna
+	 * @param Casella da,Casella a, Posizione b;
+	 * @return boolean
+	 * @author manuel
+	 */
+	public static boolean puoiMangiareA(Casella da,Casella a,Posizione b)
+	{
+		if(Math.abs(da.getColonna()-a.getColonna()) == Math.abs(da.getRiga()-a.getRiga()))
+		{
+			// Movimento idoneo,verifica pezzi
+			try{
+				if(Alfiere.searchPezzi(da, a, b))
+					return true;
+				
+			}catch(CasellaOccupataException e)
+			{
+				return false;
+			}
+		}
+		return false;		
+	}
+}
