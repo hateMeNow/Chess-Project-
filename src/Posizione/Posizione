@@ -1,0 +1,363 @@
+package Posizione;
+import Pezzi.*;
+import Utility.*;
+/**
+ * Classe posizione
+ * 
+ * @author manuel
+ */
+public class Posizione {
+
+
+	/**
+	 * Variabile privata per mantenere i pezzi
+	 */
+	private Pezzo[][] scacchiera;
+	// Re bianco
+	private static Re reN;
+	// Re nero
+	private static Re reB;
+	
+	/**
+	 * Costruttore della classe Posizione;
+	 * Genera la scacchiera.
+	 * 
+	 */
+
+	public Posizione(int rig,int col)
+	{
+		scacchiera=new Pezzo[rig][col];
+		/*Posiziono la posizione dei pezzi, costo operazione tetha di n^2*/
+		for(int righe=0;righe<rig;righe++)
+		{
+			
+			for(int colonne=0;colonne<col;colonne++)
+			{
+				/* Inserisco la torre */
+				if((righe==0 || righe==7) && (colonne==0 || colonne==7))
+				{
+					if(righe==0)
+					{
+						scacchiera[righe][colonne]=new Torre('t');
+					}else{
+						scacchiera[righe][colonne]=new Torre('T');
+					}
+				}
+				/* Inserisco il cavallo*/
+				if((righe==0 || righe==7) && (colonne==1 || colonne==6))
+				{
+					if(righe==0)
+					{
+						scacchiera[righe][colonne]=new Cavallo('c');
+					}else{
+						scacchiera[righe][colonne]=new Cavallo('C');
+					}
+				}
+				/*Inserisco l'alfiere*/
+				if((righe==0 || righe==7) && (colonne==2 || colonne==5))
+				{
+					if(righe==0)
+					{
+						scacchiera[righe][colonne]=new Alfiere('a');
+					}else{
+						scacchiera[righe][colonne]=new Alfiere('A');
+					}
+				}
+				/* Inserisco il Re */
+				if((righe==0 || righe==7) && (colonne==3))
+				{
+					if(righe==0)
+					{
+						scacchiera[righe][colonne]=new Re('r');
+						reN=(Re) scacchiera[righe][colonne];
+						
+					}else{
+						scacchiera[righe][colonne]=new Re('R');
+						reB=(Re) scacchiera[righe][colonne];
+					}
+				}
+				/*Inserisco la donna*/
+				if((righe==0 || righe==7) && (colonne==4))
+				{
+					if(righe==0)
+					{
+						scacchiera[righe][colonne]=new Donna('d');
+					}else{
+						scacchiera[righe][colonne]=new Donna('D');
+					}
+				}
+				/*Inserisco i Pedoni*/
+				if(righe==1 || righe==6)
+				{
+					if(righe==1)
+					{
+						scacchiera[righe][colonne]=new Pedone('p');
+					}else{
+						scacchiera[righe][colonne]=new Pedone('P');
+					}
+				}else
+				{
+					/*Verifico se non si tratta delle seguenti righe:1,2 per impostare a Null
+					 * Si tenga presente che logicamente non sono ne la seconda o settima, altrimenti
+					 * avrebbe inserito il pedone */
+					if(righe!=0 && righe!=7)
+					{
+						scacchiera[righe][colonne]= null;
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Costruttore della Classe Posizione con parametro p
+	 * 
+	 * @param String[] p, int rig,int col
+	 * @author manuel
+	 */
+	public Posizione(String[] p,int rig,int col)
+	{
+		char elemento;
+		scacchiera=new Pezzo[rig][col];
+		/* Genero la scacchiera tramite la stringa*/
+		for(int righe=0;righe<rig;righe++)
+		{
+
+			for(int colonne=0;colonne<col;colonne++)
+			{
+				/*Prelevo il carattere corrispondente alla riga e colonna */
+				elemento=p[righe].charAt(colonne); 
+
+				/*Memorizzo la posizione dei pezzi per la mossa precedente*/
+				/*inserisco il re*/
+				if(elemento=='r' || elemento =='R')
+				{
+					if(elemento=='r')
+					{
+						scacchiera[righe][colonne]=new Re('r');
+						reN=(Re) scacchiera[righe][colonne];						
+					}else{
+						scacchiera[righe][colonne]=new Re('R');
+						reB=(Re) scacchiera[righe][colonne];						
+					}
+				}
+				/*Inserisco la donna*/
+				if(elemento=='d' || elemento =='D')
+				{
+					if(elemento=='d')
+					{
+						scacchiera[righe][colonne]=new Donna('d');
+					}else{
+						scacchiera[righe][colonne]=new Donna('D');
+					}
+				}
+				/*Inserisco il pedone*/
+				if(elemento=='p' || elemento =='P')
+				{
+					if(elemento=='p')
+					{
+						scacchiera[righe][colonne]=new Pedone('p');
+					}else{
+						scacchiera[righe][colonne]=new Pedone('P');
+					}
+				}
+				/*Inserisco la torre*/
+				if(elemento=='t' || elemento =='T')
+				{
+					if(elemento=='t')
+					{
+						scacchiera[righe][colonne]=new Torre('t');
+					}else{
+						scacchiera[righe][colonne]=new Torre('T');
+					}
+				}
+				/*Inserisco l alfiere*/
+				if(elemento=='a' || elemento =='A')
+				{
+					if(elemento=='a')
+					{
+						scacchiera[righe][colonne]=new Alfiere('a');
+					}else{
+						scacchiera[righe][colonne]=new Alfiere('A');
+					}
+				}
+				/*Inserisco il cavallo*/
+				if(elemento=='c' || elemento =='C')
+				{
+					if(elemento=='c')
+					{
+						scacchiera[righe][colonne]=new Cavallo('c');
+					}else{
+						scacchiera[righe][colonne]=new Cavallo('C');
+					}
+				}
+				if(elemento=='.')
+				{
+					scacchiera[righe][colonne]=null;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Metodo che ritorna il pezzo nella casella
+	 * 
+	 * @param pos
+	 * @return Pezzo
+	 * @author manuel
+	 */
+	public char getColorePezzo(Casella pos)
+	{
+		return scacchiera[pos.getRiga()][pos.getColonna()].getColore();
+	}
+	/**
+	 * Metodo che ritorna il pezzo nella posizione
+	 * 
+	 * @param Casella pos
+	 * @return Pezzo
+	 * @author manuel
+	 */
+	public Pezzo getPezzo(Casella pos)
+	{
+
+		return scacchiera[pos.getRiga()][pos.getColonna()];
+	}
+	/**
+	 * Metodo setPezzo;
+	 * Metodo che setta un pezzo nella scacchiera.
+	 * Utile per la promozione di pedone
+	 * 
+	 * @param Casella da, Pezzo p
+	 */
+	public void setPezzo(Casella da,Pezzo p)
+	{
+		scacchiera[da.getRiga()][da.getColonna()]=p;
+	}
+	/**
+	 * Metodo getRighe;
+	 * Metodo che ritorna le righe della scacchiera;
+	 * 
+	 * @return int 
+	 * @author manuel
+	 */
+	public int getRighe()
+	{
+		return scacchiera.length-1;
+	}
+	
+	/**
+	 * Metodo getColonne;
+	 * Metodo che ritorna il numero delle colonne della scacchiera;
+	 * 
+	 * @return int
+	 * @author manuel
+	 */
+	public int getColonne()
+	{
+
+		/*Le colonne sono equivalenti alle righe ecco perchè scacchiera[0]*/
+		return scacchiera[0].length-1;
+	}
+	
+	/**
+	 * Metodo getScacchiera;
+	 * Ritorna la scacchiera inizializzata.
+	 * 
+	 * @return scacchiera
+	 * @author manuel
+	 */
+	public Pezzo[][] getScacchiera()
+	{
+		return scacchiera;
+	}
+	
+	/**
+	 * Metodo setScacchiera;
+	 * Il seguente metodo è un utility verso il metodo ritira
+	 * della classe PartitaDiScacchi.
+	 * 
+	 * @return void
+	 * @param Pezzo[][] scacchiera
+	 * @author manuel
+	 */
+	public void setScacchiera(Pezzo[][] scacchiera)
+	{
+		this.scacchiera=scacchiera;
+	}
+	/**
+	 * Metodo getReN;
+	 * Ritorna il re nero
+	 * 
+	 * @return reN
+	 * @author manuel
+	 */
+	public static Re getReN()
+	{
+		return reN;
+	}
+	/**
+	 * Metodo getReB;
+	 * Ritorna il re bianco;
+	 * 
+	 * @return reB;
+	 */
+	public static Re getReB()
+	{
+		return reB;
+	}
+	/**
+	 * Metodo getPosReN;
+	 * Metodo che ritorna la posizione del Re di colore nero.
+	 * 
+	 * @param void
+	 * @return Casella
+	 * @author manuel
+	 */
+	
+	public Casella getPosReN()
+	{
+		Casella pos=new Casella();
+		for(int i=0;i<scacchiera.length;i++)
+		{
+			for(int j=0;j<scacchiera[0].length;j++)
+			{
+				if(scacchiera[i][j]==null)
+					continue;
+				if(scacchiera[i][j].getColore()=='r')
+				{
+					pos.setRiga(i);
+					pos.setColonna(j);
+				}
+			}
+		}
+		return pos;
+	}
+	/**
+	 * Metodo getPosReB;
+	 * Metodo che ritorna la posizione del Re di colore nero.
+	 * 
+	 * @param void
+	 * @return Casella
+	 * @author manuel
+	 */
+	
+	public Casella getPosReB()
+	{
+		Casella pos=new Casella();
+		for(int i=0;i<scacchiera.length;i++)
+		{
+			for(int j=0;j<scacchiera[0].length;j++)
+			{
+				if(scacchiera[i][j]==null)
+					continue;
+				if(scacchiera[i][j].getColore()=='R')
+				{
+					pos.setRiga(i);
+					pos.setColonna(j);
+				}
+			}
+		}
+		return pos;
+	}	
+	
+}
