@@ -1,0 +1,32 @@
+package Utility;
+import Posizione.*;
+
+public class estraiCaselle {
+	/**
+	 * Metodo estraiCasella;
+	 * metodo per estrarre una casella da input
+	 * 
+	 * @param String mossa  int prima
+	 * @return Casella
+	 */
+	public static Casella estraiCasella(String mossa,int prima)
+	{
+		Casella a=new Casella();
+		int riga;
+		int colonna;
+		if(prima==1)
+		{
+			riga=Character.getNumericValue(mossa.charAt(0));
+			colonna=(Trasform.getInteger(mossa.charAt(1)));
+			a.setRiga(riga);
+			a.setColonna(colonna);
+		}else{
+			riga=Character.getNumericValue(mossa.charAt(3));
+			colonna=(Trasform.getInteger(mossa.charAt(4)));
+			a.setRiga(riga);
+			a.setColonna(colonna);
+		}
+		
+		return a;
+	}
+}
