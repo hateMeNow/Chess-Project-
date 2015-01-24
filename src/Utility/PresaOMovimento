@@ -1,0 +1,23 @@
+package Utility;
+
+public class PresaOMovimento {
+
+	/**
+	 * Metodo presaOMovimento
+	 * Verifica se si tratta di una pesa o movimento;
+	 * 
+	 * @param String mossa
+	 * @return boolean true\false
+	 */
+	public static boolean presaOMovimento(String mossa)
+	{
+		if(mossa.charAt(2)=='x')
+		{
+			//Ritorna true, PResa
+			return true;
+		}else{
+			//Ritorna false,Movimento
+			return false;
+		}
+	}
+}
