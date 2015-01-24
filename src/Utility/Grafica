@@ -1,0 +1,146 @@
+package Utility;
+import java.util.*;
+import Posizione.*;
+
+public class Grafica {
+
+	private final String nomeAutore="Manuel Ciofo";
+	private final String Titolo="Scacchiera";
+	
+	public void mostraMenu()
+	{
+		System.out.println(Titolo+" Created by: "+ nomeAutore);
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("1) Nuova Partita");
+		System.out.println("2) Carica Partita");
+		System.out.println("3) Regole Scacchi");
+		System.out.println("4) Exit");
+		System.out.println(" ");
+	}
+	
+	public void regoleScacchi()
+	{
+		System.out.println("Regole per gli scacchi");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("Mosse:");
+		System.out.println("Pedone: Movimento di una casella o due in fase iniziale. Mangia per diagonale.");
+		System.out.println("Torre: Movimento per orizzontale o verticale di n caselle, il movimento può essere bloccato da un pezzo avversario\\alleato. ");
+		System.out.println("Cavallo: Movimento ad L , due righe o colonne più una riga o colonna");
+		System.out.println("Alfiere: Movimento diagonale di n caselle. Il suo movimento può essere bloccato da un pezzo avversario\\alleato.");
+		System.out.println("Re: Movimento di una singola casella in ogni direzione.");
+		System.out.println("Donna: Il movimento consiste sia nel tipico movimento della torre che alfiere.");
+		System.out.println(" ");
+	}
+	
+	public void stampaScacchiera(String[] pos)
+	{
+		for(int i=0;i<pos.length-1;i++)
+		{
+			System.out.print(i+":");
+			System.out.print(pos[i]);
+			System.out.println("");
+		}
+		for(int i=0;i<pos.length-1;i++)
+		{
+			if(i==0)
+			{
+				System.out.print("  ");
+			}
+			if(i==1)
+			{
+				System.out.print("A");
+			}
+			if(i==2)
+			{
+				System.out.print("B");
+			}
+			if(i==3)
+			{
+				System.out.print("C");
+			}
+			if(i==4)
+			{
+				System.out.print("D");
+			}
+			if(i==5)
+			{
+				System.out.print("E");
+			}
+			if(i==6)
+			{
+				System.out.print("F");
+			}
+			if(i==7)
+			{
+				System.out.print("G");
+			}
+		}
+		System.out.print("H");
+		System.out.println(" ");
+	}
+	
+	public void stampaMosseBianche(ArrayList<String> mosse)
+	{
+		System.out.println("Elenco mosse bianche:");
+		Iterator listaMosse=mosse.iterator();
+		while(listaMosse.hasNext())
+		{
+			System.out.print(listaMosse.next());
+		}
+		System.out.println();
+	}
+	
+	public void stampaMosseNere(ArrayList<String> mosse)
+	{
+		System.out.println("Elenco mosse nere:");
+		Iterator listaMosse=mosse.iterator();
+		while(listaMosse.hasNext())
+		{
+			System.out.print(listaMosse.next());
+		}
+		System.out.println();
+	}
+	
+	public Casella setCasella(String str)
+	{
+		Casella a=new Casella();
+		a.setRiga(Character.getNumericValue(str.charAt(0)));
+		if(Character.isAlphabetic(str.charAt(1)))
+		{
+			a.setColonna(Trasform.getInteger(str.charAt(1)));
+		}else{
+			a.setColonna(Character.getNumericValue(str.charAt(0)));
+		}
+		return a;
+	}
+	
+	public void mostraMenuPartita()
+	{
+		System.out.println("1)Esegui mossa");
+		System.out.println("2)Ritira");
+		System.out.println("3)Abbandona");
+		System.out.println("4)Salva Partita");
+	}
+
+	public void stampaTurnoMosse(char turno,int mosse)
+	{
+		if(turno=='B')
+		{
+			System.out.println("");
+			System.out.println("Turno Bianco.");
+		}else{
+			System.out.println("");
+			System.out.println("Turno Nero.");
+		}
+		System.out.println("");
+		System.out.println("Mosse attuate prima dello stallo:"+mosse);
+	}
+}
