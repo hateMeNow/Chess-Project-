@@ -1,0 +1,489 @@
+package Pezzi;
+import Posizione.*;
+
+import ExceptionMosse.*;
+import Utility.*;
+import ExceptionPartita.ReSottoScaccoException;
+import ExceptionPartita.ScaccoPerpetuoException;
+import java.math.*;
+import ExceptionPezzi.*;
+import ExceptionPartita.StalloException;
+
+
+/**
+ * Classe Re;
+ * Movimento: Il movimento è di una casella in tutte le direzioni
+ * 
+ * @author manuel
+ *
+ */
+
+
+public class Re implements Pezzo {
+	/**
+	 * Variabile per definire il colore del pezzo;
+	 */
+	private char colore;
+	private String[] mosse;
+	private boolean sottoScacco;
+	private static boolean Mosso;
+	Casella pos;
+	/**
+	 * Costruttore per Re;
+	 * 
+	 * @param colore
+	 */
+	public Re(char colore)
+	{
+		this.colore=colore;
+		mosse=new String[5];
+		sottoScacco=false;
+		this.Mosso=false;
+	}
+	/**
+	 * Metodo che ritorna il colore del pezzo; 
+	 * @retur char
+	 */
+	public char getColore()
+	{
+		return colore;
+	}
+	/**
+	 * Metodo setMosso;
+	 * Setta la variabile booleana a true; 
+	 * Utile per l'arrocco
+	 * 
+	 * @author manuel
+	 * @param void
+	 */
+	
+	public static void setMosso()
+	{
+		Mosso=true;
+	}
+	/**
+	 * Metodo setMosso;
+	 * Setta la variabile booleana a true; 
+	 * Utile per l'arrocco
+	 * 
+	 * @author manuel
+	 * @param void
+	 * @return mosso\boolean
+	 */
+	
+	public static boolean getMosso()
+	{
+		 return Mosso;
+	}
+	
+	/**
+	 * Metodo puoiMuovere;
+	 * Il seguente metodo verifica il movimento del re.
+	 * In caso di Scacco, il re non può essere mosso.
+	 * 
+	 * @param Casella da,Casella a, Posizione b
+	 * @return boolean
+	 * @throws CasellaOccupataException,ReSottoScaccoException,MossaIllegaleException
+	 */
+	public boolean puoiMuovere(Casella da, Casella a,Posizione b) throws CasellaOccupataException, ReSottoScaccoException, MossaIllegaleException
+	{
+		
+		Pezzo ar;
+		/*Verifichiamo il movimento del re*/
+
+		if( (Math.abs(da.getRiga()-a.getRiga())==1 && (Math.abs(da.getColonna()-a.getColonna())==1) ) || ((Math.abs(da.getRiga()-a.getRiga())==0) && (Math.abs(da.getColonna()-a.getColonna())==1) ) || ((Math.abs(da.getRiga()-a.getRiga())==1) && (Math.abs(da.getColonna()-a.getColonna())==0))  )
+		{
+			/* Mossa Idonea*/
+			/*Verifico se presenti pezzi */
+
+			Pezzo p=b.getPezzo(a);
+			if(p!=null)
+			{
+				/*Verifico se il pezzo è differente,tramite la classe MaiusOMin nel package Utility*/
+				if(MaiusOMinuscola.Maius(b.getColorePezzo(da)))
+				{
+					/*Maiuscolo,verifico se bianco*/
+					if(MaiusOMinuscola.Maius(b.getColorePezzo(a)))
+					{
+						/*Valore Maiuscolo, ECCEZIONE*/
+						throw new CasellaOccupataException();
+					}else{
+						/*Mossa idonea,verifico se comporta lo scacco*/
+
+						if(Re.searchScacco(da,a, b, b.getColorePezzo(da)))
+						{
+							throw new ReSottoScaccoException();
+						}
+						return true;
+					}
+				}else{
+					/*Minuscolo,verifico se il pezzo è bianco*/
+					if(MaiusOMinuscola.Maius(b.getColorePezzo(a)))
+					{
+						/*Pezzo Bianco,Idoneo. Verifico se comporta scacco*/
+
+						if(Re.searchScacco(da,a, b, b.getColorePezzo(da)))
+						{
+							
+							return false;
+						}
+						return true;
+					}else{
+					/*Pezzo Nero,Eccezione*/
+							throw new CasellaOccupataException();
+					}
+				}
+			}else
+			{
+				/*Verifico se il movimento comporta scacco*/
+
+				if(Re.searchScacco(da,a, b, b.getColorePezzo(da)))
+				{
+					throw new ReSottoScaccoException();
+				}
+				return true;
+			}
+		}else{
+			//Verifica Arrocco
+			ar=b.getPezzo(a);
+			if(ar==null)
+			{
+				throw new MossaIllegaleException();
+			}else{
+				if(ar.getColore()!='T' && ar.getColore()!='t')
+				{
+					throw new MossaIllegaleException();
+				}else{
+					Torre to=(Torre) ar;
+					if(MaiusOMinuscola.Maius(b.getColorePezzo(da)))
+					{
+						//Bianco
+						if(MaiusOMinuscola.Maius(ar.getColore()))
+						{
+							if(this.Mosso==true || to.getMosso()==true  )
+								throw new MossaIllegaleException();
+							return true;
+						}else{
+							throw new MossaIllegaleException();
+						}
+					}else{
+						//nero
+						if(MaiusOMinuscola.Maius(ar.getColore()))
+						{
+							throw new MossaIllegaleException();
+						}else{
+							if(this.Mosso==true || to.getMosso()==true  )
+								throw new MossaIllegaleException();
+							return true;
+						}
+					}
+				}
+			}
+		}
+		/*Movimento non idoneo ese: Scelta la stessa casella*/
+	}
+	/**
+	 * Metodo searchScacco;
+	 * Il metodo verifica se il movimento comporta scacco o meno.
+	 * 
+	 * @throws ReSottoScaccoException
+	 * @param Casella da,Casella a, Posizione b,char colore
+	 * @return boolean
+	 * @author manuel
+	 */
+	public static boolean searchScacco(Casella da,Casella a,Posizione b,char colore) throws ReSottoScaccoException
+	{
+		Pezzo p;
+		Casella pos=new Casella();
+		Casella cDa=new Casella();
+		Casella cA=new Casella();
+		int righe=b.getRighe();
+		int colonne=b.getColonne();
+
+		if(colore=='r')
+		{
+			for(int i=0;i<=righe;i++)
+			{
+				for(int j=0;j<=colonne;j++)
+				{
+					pos.setRiga(i);
+					pos.setColonna(j);
+					p=b.getPezzo(pos);
+					if(p==null)
+						continue;
+					if(MaiusOMinuscola.Maius(p.getColore()))
+					{
+						//Pezzo bianco
+						cDa.setRiga(pos.getRiga());
+						cDa.setColonna(pos.getColonna());
+						cA.setRiga(a.getColonna());
+						cA.setColonna(a.getColonna());
+
+						if(p.puoiMangiare(cDa, cA, colore, b))
+						{
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		}else{
+			for(int i=0;i<=righe;i++)
+			{
+				for(int j=0;j<=colonne;j++)
+				{
+					pos.setRiga(i);
+					pos.setColonna(j);
+					p=b.getPezzo(pos);
+					if(p==null)
+						continue;
+					if(MaiusOMinuscola.Maius(p.getColore()))
+					{
+						continue;
+					}else{
+						
+						//Pezzo nero
+						cDa.setRiga(pos.getRiga());
+						cDa.setColonna(pos.getColonna());
+						cA.setRiga(a.getColonna());
+						cA.setColonna(a.getColonna());				
+						if(p.puoiMangiare(cDa, cA, colore, b))
+						{
+							return true;
+						}
+					}
+					
+				}
+			}	
+			return false;
+		}
+	}
+	
+	/**
+	 * Metodo getMosse;
+	 * Il seguente metodo ritorna tutte le mosse possibili per il re.
+	 * Si noti che i movimenti coincidono con le prese.
+	 * 
+	 * 
+	 * @param Casella da, Posizione b
+	 * @return arr
+	 * @author manuel
+	 */
+	
+	public String getMosse(char Colore, Casella da,Posizione b)
+	{
+
+		Casella a=new Casella();
+		a.setColonna(da.getColonna());
+		a.setRiga(da.getRiga());
+		Re r=new Re(colore);
+		/*Stringa che ritorna*/
+		String arr="";
+		/*Posizione casella*/
+		String cDa=Integer.toString(da.getRiga())+Trasform.getCharacter(da.getColonna());
+		/*Posizione dove mangia*/
+		String dM="";
+		//Verifica verso l alto
+		if(a.getRiga()-1>=0)
+		{
+			a.decrementaColonna();
+			a.decrementaRiga();
+			for(int i=0;i<3;i++)
+			{
+				if(a.getColonna()<0 || a.getColonna()>b.getColonne())
+					continue;
+				if(r.puoiMangiare(da, a, Colore, b))
+				{
+					dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+					arr=arr+cDa+"x"+dM+" ";
+				}
+				a.incrementaColonna();
+			}				
+			a.incrementaRiga();
+		}
+		//Verifica verso il basso
+		a.setColonna(da.getColonna());
+		a.setRiga(da.getRiga());
+		if(da.getRiga()+1<=b.getRighe())
+		{
+			a.decrementaColonna();
+			a.incrementaRiga();
+			for(int i=0;i<3;i++)
+			{
+				if(a.getColonna()<0 || a.getColonna()>b.getColonne())
+					continue;
+				if(r.puoiMangiare(da, a, Colore, b))
+				{
+					dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+					arr=arr+cDa+"x"+dM+" ";
+				}
+				a.incrementaColonna();	
+			}
+			a.decrementaRiga();
+		}
+		a.setColonna(da.getColonna());
+		a.setRiga(da.getRiga());
+		//Verifica verso destra
+		if(a.getColonna()+1<=b.getColonne())
+		{
+			a.incrementaColonna();
+			if(r.puoiMangiare(da, a, Colore, b))
+			{
+				dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+				arr=arr+cDa+"x"+dM+" ";
+			}
+			a.decrementaColonna();	
+		}
+		a.setColonna(da.getColonna());
+		a.setRiga(da.getRiga());
+		//Verifica verso sinistra
+		if(a.getColonna()-1>=0)
+		{
+
+			a.decrementaColonna();
+			if(r.puoiMangiare(da, a, Colore, b))
+			{
+				dM=Integer.toString(a.getRiga())+Trasform.getCharacter(a.getColonna());
+				arr=arr+cDa+"x"+dM+" ";
+			}
+		}
+		return arr;
+	}
+	/**
+	 * Metodo puoiMangiare;
+	 * Metodo che verifica se il re può mangiare quella casella, utile per verificare uno scacco
+	 * 
+	 * @param Casella da, Casella a, char colore
+	 * @return boolean
+	 * @author manuel
+	 * 
+	 */
+	public boolean puoiMangiare(Casella da,Casella a,char colore,Posizione b)
+	{
+		Pezzo p;
+		if(Math.abs(da.getRiga()-a.getRiga())==1 || (Math.abs(da.getColonna()-a.getColonna())==1))
+		{
+			if(Math.abs(da.getRiga()-a.getRiga())==0 && (Math.abs(da.getColonna()-a.getColonna())==0))
+			{
+				return false;
+			}else{
+				p=b.getPezzo(a);
+				if(p==null)
+				{
+					this.Mosso=true;
+					return true;
+				}
+				if(MaiusOMinuscola.Maius(colore))
+				{
+					if(MaiusOMinuscola.Maius(p.getColore()))
+					{
+						return false;
+					}else{
+						this.Mosso=true;
+						return true;
+					}
+				}else{
+					if(MaiusOMinuscola.Maius(p.getColore()))
+					{
+						this.Mosso=true;
+						return true;
+					}else{
+						return false;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Metodo searchScaccoPerpetuo;
+	 * Il seguente metodo verifica, tramite le mosse del re,
+	 * se presente uno scacco perpetuo.
+	 * 
+	 * @param void 
+	 * @return void
+	 * @throws ScaccoPerpetuoException
+	 * @author manuel
+	 */
+	private void searchScaccoPerpetuo() throws ScaccoPerpetuoException
+	{
+		//Verifico se sono presenti mosse nell'array
+		if((mosse[0]==null) || (mosse[1]==null) || (mosse[2]==null))
+		{
+			//Ritorno false,poche mosse presenti
+
+		}else{
+			int count=0;
+			//Verifico se presenti mosse identiche
+			for(int j=0;j<mosse.length;j++)
+			{
+				for(int i=1;i<mosse.length;i++)
+				{
+					if(mosse[j]==mosse[i])
+					{
+						count++;
+					}
+				}
+			if(count==3)
+				throw new ScaccoPerpetuoException();
+			}
+		}
+	}
+	
+	/**
+	 * Metodo addMosse;
+	 * Il seguente metodo privato, è utile per verificare uno
+	 * scacco perpetuo.
+	 * 
+	 * @param String mossa
+	 * @return void
+	 * @author manuel
+	 */
+	private void addMosse(String mossa)
+	{
+		for (int i=0;i<mosse.length-1;i++)
+		{
+			mosse[i]=mosse[i+1];
+			if(i==3)
+			{
+				mosse[i+1]=mossa;
+			}
+		}
+
+	}
+	/**
+	 * Metodo setSottoScacco;
+	 * Metodo utile per lo scacco perpetuo.
+	 * 
+	 * @param Casella da
+	 * @return void
+	 * @author manuel 
+	 */
+	public void setSottoScacco(Casella da,Re r) throws ScaccoPerpetuoException
+	{
+		sottoScacco=true;
+		String mossa=Integer.toString(da.getRiga())+""+Integer.toString(da.getColonna());
+		r.addMosse(mossa);
+		r.searchScaccoPerpetuo();
+	}
+	
+	public void nonSottoScacco()
+	{
+		sottoScacco=false;
+	}
+	/**
+	 * Metodo getSottoScacco;
+	 * Il seguente metodo ritorna la variabile sottoScacco.
+	 * Utile per verificare la fase di scacco perpetuo o scacco matto.
+	 * 
+	 * @param void
+	 * @return boolean
+	 * @author manuel
+	 */
+	public boolean getSottoScacco()
+	{
+		return sottoScacco;
+	}
+	
+}
